@@ -76,17 +76,10 @@ Target "Package" (fun _ ->
             Authors = [ "The TddStud10 Team" ]
             Project = "TddStud10.TestHost"
             Description = "TddStud10 TestHost"
-            Version = EnvironmentHelper.environVarOrDefault "GitVersion_NuGetVersion" "0.0.0"
-            Dependencies = [ "FSharp.Core", GetPackageVersion packagesDir "FSharp.Core" 
-                             "TddStud10.Common", "0.0.0" ]
-            Files = [ "R4nd0mApps.TddStud10.TestHost.Core.dll"
-                      "R4nd0mApps.TddStud10.TestHost.Core.pdb"
-                      "R4nd0mApps.TddStud10.TestRuntime.dll"
-                      "R4nd0mApps.TddStud10.TestRuntime.pdb"
-                      "TddStud10.TestHost.exe"
-                      "TddStud10.TestHost.pdb"
-                      "TddStud10.TestHost.exe.config" ] 
-                    |> List.map (fun f -> buildDir @@ f, Some "lib", None )
+            Version = EnvironmentHelper.environVarOrDefault "GitVersion_NuGetVersion" "0.0.0-alpha00"
+            Dependencies = [ "FSharp.Core", "" 
+                             "TddStud10.Common", "TddStud10" ]
+                           |> List.map (fun (d,g) -> d, GetPackageVersion (packagesDir @@ g) d)
             OutputPath = buildDir })
 )
 

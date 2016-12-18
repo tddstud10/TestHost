@@ -1,20 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">    
-  <id>@project@</id>
-  <version>@build.number@</version>
-  <authors>@authors@</authors>
-  <owners>@authors@</owners>
-  <summary>@summary@</summary>
-  <licenseUrl>https://github.com/parthopdas/tddstud10/blob/master/LICENSE</licenseUrl>
-  <projectUrl>https://github.com/parthopdas/tddstud10</projectUrl>
-  <iconUrl>https://github.com/parthopdas/tddstud10/icon.png</iconUrl>
-  <requireLicenseAcceptance>false</requireLicenseAcceptance>
-  <description>@description@</description>
-  <releaseNotes>@releaseNotes@</releaseNotes>
-  <copyright>Partho P. Das 2016-3016</copyright>    
-  <tags>TddStud10 TDD Unit Test</tags>
-  @dependencies@
+    <id>@project@</id>
+    <version>@build.number@</version>
+    <authors>@authors@</authors>
+    <owners>@authors@</owners>
+    <summary>@summary@</summary>
+    <licenseUrl>https://github.com/parthopdas/tddstud10/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/parthopdas/tddstud10</projectUrl>
+    <iconUrl>https://github.com/parthopdas/tddstud10/icon.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>@description@</description>
+    <releaseNotes>@releaseNotes@</releaseNotes>
+    <copyright>Partho P. Das 2016-3016</copyright>    
+    <tags>TddStud10 TDD Unit Test</tags>
+    @dependencies@
+    <references>
+      <reference file="R4nd0mApps.TddStud10.TestHost.Core.dll" />
+      <reference file="R4nd0mApps.TddStud10.TestRuntime.dll" />
+    </references>  
   </metadata>
-  @files@
+  <files>
+    <file src="..\build\R4nd0mApps.TddStud10.TestHost.Core.dll" target="lib" /> 
+    <file src="..\build\R4nd0mApps.TddStud10.TestHost.Core.pdb" target="lib" /> 
+    <file src="..\build\R4nd0mApps.TddStud10.TestRuntime.dll" target="lib" /> 
+    <file src="..\build\R4nd0mApps.TddStud10.TestRuntime.pdb" target="lib" /> 
+    <file src="..\build\TddStud10.TestHost.exe" target="lib" /> 
+    <file src="..\build\TddStud10.TestHost.exe.config" target="lib" /> 
+    <file src="..\build\TddStud10.TestHost.pdb" target="lib" /> 
+    <file src="..\ObjectModel\Microsoft.VisualStudio.TestPlatform.ObjectModel.dll" target="lib" /> 
+    <file src="..\ObjectModel\msdia120typelib_clr0200.dll" target="lib" /> 
+  </files>
 </package>

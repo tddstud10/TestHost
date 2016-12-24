@@ -58,9 +58,6 @@
     <Compile Include="..\AssemblyInfo.fs">
       <Link>AssemblyInfo.fs</Link>
     </Compile>
-    <Compile Include="..\Constants.fs">
-      <Link>Constants.fs</Link>
-    </Compile>
     <Compile Include="PerDocumentLocationTestCases.fs" />
     <Compile Include="CoverageDataCollector.fs" />
     <Compile Include="TestPlatformExtensions.fs" />

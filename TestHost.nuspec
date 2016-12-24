@@ -6,9 +6,9 @@
     <authors>@authors@</authors>
     <owners>@authors@</owners>
     <summary>@summary@</summary>
-    <licenseUrl>https://github.com/parthopdas/tddstud10/blob/master/LICENSE</licenseUrl>
-    <projectUrl>https://github.com/parthopdas/tddstud10</projectUrl>
-    <iconUrl>https://github.com/parthopdas/tddstud10/icon.png</iconUrl>
+    <licenseUrl>https://github.com/tddstud10/tddstud10/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/tddstud10/tddstud10</projectUrl>
+    <iconUrl>https://github.com/tddstud10/tddstud10/icon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>@description@</description>
     <releaseNotes>@releaseNotes@</releaseNotes>

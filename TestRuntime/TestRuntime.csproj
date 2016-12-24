@@ -63,9 +63,6 @@
     <Compile Include="..\AssemblyInfo.cs">
       <Link>AssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="..\Constants.cs">
-      <Link>Constants.cs</Link>
-    </Compile>
     <Compile Include="ICoverageDataCollector.cs" />
     <Compile Include="LazyObject.cs" />
     <Compile Include="Marker.cs" />

@@ -21,7 +21,7 @@ let ``Should have restricted dependencies``() =
           ("System.ServiceModel", "3.0.0.0")
           ("System", "2.0.0.0")
           ("nCrunch.TestRuntime", "2.15.0.9")
-          ("R4nd0mApps.TddStud10.TestRuntime.df", "1.0.0.0") ]
+          ("R4nd0mApps.TddStud10.TestRuntime.DF", "1.0.0.0") ]
 
     
     let deps = 

@@ -1,5 +1,5 @@
 // include Fake libs
-#r "./packages/FAKE/tools/FakeLib.dll"
+#r "./packages/Build/FAKE/tools/FakeLib.dll"
 
 open Fake
 open Fake.Testing
@@ -9,7 +9,7 @@ open System.IO
 MSBuildDefaults <- { MSBuildDefaults with Verbosity = Some MSBuildVerbosity.Minimal }
 
 // Directories
-let packagesDir = __SOURCE_DIRECTORY__ @@ "packages"
+let packagesDir = __SOURCE_DIRECTORY__ @@ "packages" @@ "Build"
 let buildDir  = __SOURCE_DIRECTORY__ @@ @"build"
 let testDir  = __SOURCE_DIRECTORY__ @@ @"build"
 let nugetDir = __SOURCE_DIRECTORY__ @@ @"NuGet"
@@ -77,9 +77,9 @@ Target "Package" (fun _ ->
             Project = "TddStud10.TestHost"
             Description = "TddStud10 TestHost"
             Version = EnvironmentHelper.environVarOrDefault "GitVersion_NuGetVersion" "0.0.0-alpha00"
-            Dependencies = [ "FSharp.Core", "" 
-                             "Mono.Cecil", ""
-                             "TddStud10.Common", "TddStud10" ]
+            Dependencies = [ "FSharp.Core", ".." 
+                             "Mono.Cecil", ".."
+                             "TddStud10.Common", "../TddStud10" ]
                            |> List.map (fun (d,g) -> d, GetPackageVersion (packagesDir @@ g) d)
             OutputPath = buildDir })
 )

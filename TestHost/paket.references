@@ -1,5 +1,5 @@
-BuildTools.FxCop
 FSharp.Core
-StyleCop.MSBuild
+File:YaFunTK.fs
+
 group TddStud10
-TddStud10.Common
+    TddStud10.Common

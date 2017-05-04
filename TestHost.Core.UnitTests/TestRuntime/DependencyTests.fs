@@ -1,15 +1,16 @@
 module R4nd0mApps.TddStud10.Common.Domain.DependencyTests
 
-open Xunit
 open Mono.Cecil
 open System
 open System.IO
 open System.Collections.Generic
+open global.Xunit
+open FsUnit.Xunit
 
 [<Fact>]
 let ``Should target 2.0 Runtime``() = 
-    let rt = typedefof<R4nd0mApps.TddStud10.TestRuntime.Marker>.Assembly.ImageRuntimeVersion
-    Assert.Equal("v2.0.50727", rt)
+    typedefof<R4nd0mApps.TddStud10.TestRuntime.Marker>.Assembly.ImageRuntimeVersion
+    |> should equal "v2.0.50727"
 
 [<Fact>]
 let ``Should have restricted dependencies``() = 

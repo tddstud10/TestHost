@@ -6,6 +6,10 @@ install:
 assembly_info:
   patch: false
 
+cache:
+  - packages -> packet.lock
+  - paket-files -> packet.lock
+
 before_build:
   - ps: gitversion /l console /output buildserver /updateAssemblyInfo
 
@@ -14,5 +18,5 @@ build_script:
 
 test: off
 
-#on_finish:
-#- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+on_finish:
+- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))

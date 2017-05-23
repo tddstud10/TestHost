@@ -3,8 +3,9 @@
 open R4nd0mApps.TddStud10.Common
 open R4nd0mApps.TddStud10.Common.Domain
 open R4nd0mApps.TddStud10.TestExecution
-open System.IO
-open Xunit
+open global.Xunit
+open FsUnit.Xunit
+open Microsoft.VisualStudio.TestPlatform.ObjectModel
 
 let testDataRoot = 
     PathBuilder.combine [ TestPlatformExtensions.getLocalPath()
@@ -40,7 +41,7 @@ let ``Nested search path with no adapters, return empty`` (f : FilePath -> obj s
     let sp = 
         PathBuilder.combine [ testDataRoot
                               FilePath "NoTestAdapters" ]
-    Assert.NotEmpty(sp |> PathBuilder.enumerateFiles SearchOption.AllDirectories "*.*")
+    Assert.NotEmpty(sp |> PathBuilder.enumerateFiles System.IO.SearchOption.AllDirectories "*.*")
     Assert.Empty(sp |> f)
 
 let ``Test Data for Nested Search path with 2 adapters, return both`` : obj array seq = 
@@ -67,3 +68,34 @@ let ``Nested Search path with 2 adapters, return both`` (f : FilePath -> obj seq
         |> List.ofSeq
     
     Assert.Equal<string seq>(found, adapters)
+
+let testBin = 
+    ()
+    |> TestPlatformExtensions.getLocalPath
+    |> Prelude.flip FilePath.combine (FilePath @"TestData\bins\XUnit20FSPortable\XUnit20FSPortable.dll")
+
+let expectedTests = 
+    [ "XUnit20FSPortable.UnitTests.Fact Test 1"; "XUnit20FSPortable.UnitTests.Fact Test 2"; 
+      "XUnit20FSPortable.UnitTests.Theory Tests(input: 1)"; "XUnit20FSPortable.UnitTests.Theory Tests(input: 2)" ]
+
+[<Fact>]
+let ``discoverTests can ignore and discover theory and facts from test assembly``() = 
+    let filteredTestName = "XUnit20FSPortable.UnitTests.Theory Tests"
+   
+    let rebasePaths = (FilePath @"D:\XXX\UnitTestProjects\0\XUnit20FSPortable.fsproj", FilePath @"D:\src\t\testprojects\testexecution\testdata\unittestprojects\XUnit20FSPortable\XUnit20FSPortable.fsproj")
+    let discTests = 
+        testBin
+        |> TestAdapterExtensions.discoverTests rebasePaths (TestPlatformExtensions.getLocalPath()) [| filteredTestName |]
+    
+    let expected = 
+        expectedTests 
+        |> List.filter (String.startsWith filteredTestName >> not)
+        |> List.map (Prelude.tuple2 @"D:\XXX\UNITTESTPROJECTS\0\PORTABLELIBRARY1.FS")
+    let actual = 
+        discTests
+        |> Seq.map (fun t -> 
+                    let t = DataContract.deserialize<TestCase>(t.TestCase)
+                    t.CodeFilePath.ToString(), t.DisplayName)
+        |> Seq.sort
+        |> Seq.toList
+    actual |> should equal expected

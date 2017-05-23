@@ -61,6 +61,7 @@
     <Compile Include="..\AssemblyInfo.fs">
       <Link>AssemblyInfo.fs</Link>
     </Compile>
+    <Compile Include="DataContract.fs" />
     <Compile Include="PerDocumentLocationTestCases.fs" />
     <Compile Include="CoverageDataCollector.fs" />
     <Compile Include="TestPlatformExtensions.fs" />
@@ -79,12 +80,14 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <ProjectReference Include="..\TestRuntime\TestRuntime.csproj">
       <Name>TestRuntime</Name>
       <Project>{0fea2e86-4ee0-4fd8-949d-c74189b855d9}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

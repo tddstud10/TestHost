@@ -36,6 +36,15 @@ let toDTestCase (tc : TestCase) =
       CodeFilePath = FilePath tc.CodeFilePath
       LineNumber = DocumentCoordinate tc.LineNumber }
 
+let toDTestCase2 (tc : TestCase) =
+    { TestCase = DataContract.serialize tc
+      DtcId = tc.Id
+      FullyQualifiedName = tc.FullyQualifiedName
+      DisplayName = tc.DisplayName
+      Source = FilePath tc.Source
+      CodeFilePath = FilePath tc.CodeFilePath
+      LineNumber = DocumentCoordinate tc.LineNumber }
+
 let toDTestOutcome = function
     | TestOutcome.None -> TONone
     | TestOutcome.Passed -> TOPassed

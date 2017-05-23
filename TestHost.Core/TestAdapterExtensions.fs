@@ -7,6 +7,10 @@ module TestAdapterExtensions =
     open System
     open System.IO
     open System.Reflection
+    open Microsoft.VisualStudio.TestPlatform.ObjectModel
+    open System.Collections.Concurrent
+    open R4nd0mApps.TddStud10.TestExecution
+    open R4nd0mApps.TddStud10.TestExecution.Adapters
     
     let logger = R4nd0mApps.TddStud10.Logger.LoggerFactory.logger
 
@@ -74,3 +78,22 @@ module TestAdapterExtensions =
         findAdapterAssemblies
         >> Seq.choose (createAdapter adapterMap "ITestExecutor")
         >> Seq.map (fun a -> a :?> ITestExecutor)
+
+    let discoverTests rebasePaths tdSearchPath ignoredTests assemblyPath = 
+        let tds =
+            tdSearchPath
+            |> findTestDiscoverers knownAdaptersMap
+    
+        let dTests = ConcurrentBag<DTestCase2>()
+        let discoveryCB (tc : TestCase) = 
+            let cfp = PathBuilder.rebaseCodeFilePath rebasePaths (FilePath tc.CodeFilePath)
+            tc.CodeFilePath <- cfp.ToString()
+            tc
+            |> TestPlatformExtensions.toDTestCase2
+            |> dTests.Add
+
+        let disc = XUnitTestDiscoverer()
+        disc.TestDiscovered.Add(discoveryCB)
+        disc.DiscoverTests(tds, assemblyPath, ignoredTests)
+        dTests :> seq<_>
+

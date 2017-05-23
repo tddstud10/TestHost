@@ -86,8 +86,9 @@ module TestAdapterExtensions =
     
         let dTests = ConcurrentBag<DTestCase2>()
         let discoveryCB (tc : TestCase) = 
-            let cfp = PathBuilder.rebaseCodeFilePath rebasePaths (FilePath tc.CodeFilePath)
-            tc.CodeFilePath <- cfp.ToString()
+            if not <| isNull tc.CodeFilePath then
+                let cfp = PathBuilder.rebaseCodeFilePath rebasePaths (FilePath tc.CodeFilePath)
+                tc.CodeFilePath <- cfp.ToString()
             tc
             |> TestPlatformExtensions.toDTestCase2
             |> dTests.Add

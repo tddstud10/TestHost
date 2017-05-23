@@ -95,7 +95,7 @@ let ``discoverTests can ignore and discover theory and facts from test assembly`
         discTests
         |> Seq.map (fun t -> 
                     let t = DataContract.deserialize<TestCase>(t.TestCase)
-                    t.CodeFilePath.ToString(), t.DisplayName)
+                    t.CodeFilePath, t.DisplayName)
         |> Seq.sort
         |> Seq.toList
     actual |> should equal expected

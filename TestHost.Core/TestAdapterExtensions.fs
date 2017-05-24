@@ -98,3 +98,17 @@ module TestAdapterExtensions =
         disc.DiscoverTests(tds, assemblyPath, ignoredTests)
         dTests :> seq<_>
 
+    let executeTest teSearchPath tcs =
+        let tes =
+            teSearchPath
+            |> findTestExecutors knownAdaptersMap
+
+        let te = new XUnitTestExecutor()
+        let trs = new ConcurrentQueue<DTestResult>()
+        te.TestExecuted.Add(trs.Enqueue)
+
+        let tcs =
+            tcs
+            |> Seq.map (fun tc -> tc.TestCase |> DataContract.deserialize<TestCase>)
+        te.ExecuteTests(tes, tcs)
+        trs :> seq<_>

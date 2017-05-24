@@ -75,20 +75,24 @@ let testBin =
     |> Prelude.flip FilePath.combine (FilePath @"TestData\bins\XUnit20FSPortable\XUnit20FSPortable.dll")
 
 let expectedTests = 
-    [ "XUnit20FSPortable.UnitTests.Fact Test 1"; "XUnit20FSPortable.UnitTests.Fact Test 2"; 
-      "XUnit20FSPortable.UnitTests.Theory Tests(input: 1)"; "XUnit20FSPortable.UnitTests.Theory Tests(input: 2)" ]
+    [ "XUnit20FSPortable.UnitTests.Fact Test 1", TOPassed
+      "XUnit20FSPortable.UnitTests.Fact Test 2", TOFailed
+      "XUnit20FSPortable.UnitTests.Theory Tests(input: 1)", TOPassed
+      "XUnit20FSPortable.UnitTests.Theory Tests(input: 2)", TOFailed ]
+
+let rebasePaths = (FilePath @"D:\XXX\UnitTestProjects\0\XUnit20FSPortable.fsproj", FilePath @"D:\src\t\testprojects\testexecution\testdata\unittestprojects\XUnit20FSPortable\XUnit20FSPortable.fsproj")
 
 [<Fact>]
 let ``discoverTests can ignore and discover theory and facts from test assembly``() = 
     let filteredTestName = "XUnit20FSPortable.UnitTests.Theory Tests"
    
-    let rebasePaths = (FilePath @"D:\XXX\UnitTestProjects\0\XUnit20FSPortable.fsproj", FilePath @"D:\src\t\testprojects\testexecution\testdata\unittestprojects\XUnit20FSPortable\XUnit20FSPortable.fsproj")
     let discTests = 
         testBin
         |> TestAdapterExtensions.discoverTests rebasePaths (TestPlatformExtensions.getLocalPath()) [| filteredTestName |]
     
     let expected = 
-        expectedTests 
+        expectedTests
+        |> List.map fst
         |> List.filter (String.startsWith filteredTestName >> not)
         |> List.map (Prelude.tuple2 @"D:\XXX\UNITTESTPROJECTS\0\PORTABLELIBRARY1.FS")
     let actual = 
@@ -99,3 +103,15 @@ let ``discoverTests can ignore and discover theory and facts from test assembly`
         |> Seq.sort
         |> Seq.toList
     actual |> should equal expected
+
+[<Fact>]
+let ``executeTest can execute tests``() = 
+    let actual =
+        testBin
+        |> TestAdapterExtensions.discoverTests rebasePaths (TestPlatformExtensions.getLocalPath()) [| |]
+        |> Seq.collect (Seq.singleton >> TestAdapterExtensions.executeTest (TestPlatformExtensions.getLocalPath()))
+        |> Seq.map (fun tr -> tr.DisplayName, tr.Outcome)
+        |> Seq.sortBy fst
+        |> Seq.toList
+
+    actual |> should equal expectedTests

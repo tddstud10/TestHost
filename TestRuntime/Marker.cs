@@ -24,6 +24,18 @@ namespace R4nd0mApps.TddStud10.TestRuntime
             set { _ccSetData(TESTRUNID_SLOTNAME, value); }
         }
 
+        private void SafeExec(Action action)
+        {
+            try
+            {
+                action();
+            }
+            catch (Exception e)
+            {
+                Trace.TraceInformation("Marker: SafeExec crash: {0}.", e.Message);
+            }
+        }
+
         public Marker(Func<ICoverageDataCollector> channelCreator, bool isDebuggerAttached, Func<string, object> ccGetData, Action<string, object> ccSetData)
         {
             _channel = new LazyObject<ICoverageDataCollector>(channelCreator);
@@ -45,7 +57,7 @@ namespace R4nd0mApps.TddStud10.TestRuntime
                 TestRunId = new object().GetHashCode().ToString(CultureInfo.InvariantCulture);
             }
 
-            _channel.Value.EnterSequencePoint(TestRunId, assemblyId, methodMdRid, spId);
+            SafeExec(() => _channel.Value.EnterSequencePoint(TestRunId, assemblyId, methodMdRid, spId));
         }
 
         public void RegisterExitUnitTest(string source, string document, string line)
@@ -61,7 +73,7 @@ namespace R4nd0mApps.TddStud10.TestRuntime
                 Trace.TraceError("Marker: Appears we did not have any sequence points for {0},{1},{2}.", source, document, line);
             }
 
-            _channel.Value.ExitUnitTest(TestRunId, source, document, line);
+            SafeExec(() => _channel.Value.ExitUnitTest(TestRunId, source, document, line));
             TestRunId = null;
         }
 

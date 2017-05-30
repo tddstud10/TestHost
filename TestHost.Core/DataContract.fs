@@ -1,4 +1,4 @@
-﻿namespace R4nd0mApps.TddStud10.TestExecution
+﻿namespace R4nd0mApps.TddStud10.TestHost
 
 open System.IO
 open System.Runtime.Serialization

@@ -60,14 +60,15 @@ Target "GitLink" (fun _ ->
 
 let runTest pattern =
     fun _ ->
-        !! (buildDir + pattern)
+        !! (buildDir @@  pattern)
         |> xUnit (fun p ->
             { p with
                 ToolPath = findToolInSubPath "xunit.console.exe" (currentDirectory @@ "tools" @@ "xUnit")
                 WorkingDir = Some testDir })
 
 Target "Test" DoNothing
-Target "UnitTests" (runTest "/*.UnitTests*.dll")
+Target "UnitTests" (runTest "*.UnitTests*.dll")
+Target "ContractTests" (runTest "*.ContractTests*.dll") 
 
 Target "Package" (fun _ ->
     "TestHost.nuspec"
@@ -93,6 +94,7 @@ Target "Publish" (fun _ ->
 "Clean" ==> "Rebuild" 
 "Build" ==> "Rebuild" 
 "Build" ?=> "UnitTests" ==> "Test"
+"Build" ?=> "ContractTests" ==> "Test"
 "Rebuild" ==> "Test"
 "GitLink" ==> "Package"
 "Test" ?=> "GitLink"

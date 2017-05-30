@@ -8,15 +8,11 @@ open Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging
 open Microsoft.VisualStudio.TestPlatform.ObjectModel
 open System.Collections.Generic
 open R4nd0mApps.TddStud10.Common.Domain
+open R4nd0mApps.TddStud10.TestHost
 
 let logger = R4nd0mApps.TddStud10.Logger.LoggerFactory.logger
 
-let getLocalPath() = 
-    Assembly.GetExecutingAssembly().CodeBase
-    |> fun cb -> (new Uri(cb)).LocalPath
-    |> Path.GetFullPath
-    |> Path.GetDirectoryName
-    |> FilePath
+let getLocalPath = Path.getLocalPath >> FilePath
 
 let loadTestAdapter (FilePath binDir) = 
     let aPath = Path.Combine(binDir, "xunit.runner.visualstudio.testadapter.dll")
@@ -28,7 +24,7 @@ let loadTestAdapter (FilePath binDir) =
     logger.logInfof "Test Adapter loaded"
     ta
 
-let toDTestCase (tc : TestCase) =
+let toDTestCase (tc : TestCase) : DTestCase =
     { DtcId = tc.Id
       FullyQualifiedName = tc.FullyQualifiedName
       DisplayName = tc.DisplayName

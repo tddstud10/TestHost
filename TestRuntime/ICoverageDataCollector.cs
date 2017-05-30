@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ServiceModel;
+﻿using System.ServiceModel;
 
 namespace R4nd0mApps.TddStud10.TestRuntime
 {

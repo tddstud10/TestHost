@@ -163,7 +163,7 @@ namespace R4nd0mApps.TddStud10.TestHost
         {
             bool allTestsPassed = true;
             var ccServer = new CoverageDataCollector();
-            using (ServiceHost serviceHost = new ServiceHost(ccServer))
+            using (System.ServiceModel.ServiceHost serviceHost = new System.ServiceModel.ServiceHost(ccServer))
             {
                 LogInfo("TestHost: Created Service Host.");
                 string address = Marker.CreateCodeCoverageDataCollectorEndpointAddress();

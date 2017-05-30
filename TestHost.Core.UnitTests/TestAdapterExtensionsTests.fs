@@ -8,8 +8,8 @@ open FsUnit.Xunit
 open Microsoft.VisualStudio.TestPlatform.ObjectModel
 
 let testDataRoot = 
-    PathBuilder.combine [ TestPlatformExtensions.getLocalPath()
-                          FilePath "TestData" ]
+    FilePath.combine [ TestPlatformExtensions.getLocalPath()
+                       FilePath "TestData" ]
 
 let adapterMap = 
     [ (FilePath "aunit.testadapter.dll", 
@@ -31,17 +31,17 @@ let ``Test Data for Nested search path with no adapters, return empty`` : obj ar
 [<MemberData("Test Data for Nested search path with no adapters, return empty")>]
 let ``Non existant path, return empty`` (f : FilePath -> obj seq) = 
     let sp = 
-        PathBuilder.combine [ testDataRoot
-                              FilePath "NonExistantPath" ]
+        FilePath.combine [ testDataRoot
+                           FilePath "NonExistantPath" ]
     Assert.Empty(sp |> f)
 
 [<Theory>]
 [<MemberData("Test Data for Nested search path with no adapters, return empty")>]
 let ``Nested search path with no adapters, return empty`` (f : FilePath -> obj seq) = 
     let sp = 
-        PathBuilder.combine [ testDataRoot
-                              FilePath "NoTestAdapters" ]
-    Assert.NotEmpty(sp |> PathBuilder.enumerateFiles System.IO.SearchOption.AllDirectories "*.*")
+        FilePath.combine [ testDataRoot
+                           FilePath "NoTestAdapters" ]
+    Assert.NotEmpty(sp |> FilePath.enumerateFiles System.IO.SearchOption.AllDirectories "*.*")
     Assert.Empty(sp |> f)
 
 let ``Test Data for Nested Search path with 2 adapters, return both`` : obj array seq = 
@@ -58,8 +58,8 @@ let ``Test Data for Nested Search path with 2 adapters, return both`` : obj arra
 [<MemberData("Test Data for Nested Search path with 2 adapters, return both")>]
 let ``Nested Search path with 2 adapters, return both`` (f : FilePath -> obj seq, adapters : string list) = 
     let sp = 
-        PathBuilder.combine [ testDataRoot
-                              FilePath "TestAdapters" ]
+        FilePath.combine [ testDataRoot
+                           FilePath "TestAdapters" ]
     let found = 
         sp
         |> f
@@ -70,9 +70,8 @@ let ``Nested Search path with 2 adapters, return both`` (f : FilePath -> obj seq
     Assert.Equal<string seq>(found, adapters)
 
 let testBin = 
-    ()
-    |> TestPlatformExtensions.getLocalPath
-    |> Prelude.flip FilePath.combine (FilePath @"TestData\bins\XUnit20FSPortable\XUnit20FSPortable.dll")
+    [ TestPlatformExtensions.getLocalPath(); (FilePath @"TestData\bins\XUnit20FSPortable\XUnit20FSPortable.dll") ]
+    |> FilePath.combine 
 
 let expectedTests = 
     [ "XUnit20FSPortable.UnitTests.Fact Test 1", TOPassed

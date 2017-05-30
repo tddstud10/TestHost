@@ -116,7 +116,6 @@ type CdcMock() =
     member val EnterSPCalled = false with get, set
     member val ExitUTCalled = false with get, set
 
-
 [<Fact>]
 let ``With debugger attached coverage info does not get registered``() = 
     let cdc = CdcMock()

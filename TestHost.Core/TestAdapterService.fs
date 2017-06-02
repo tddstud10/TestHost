@@ -2,8 +2,9 @@
 
 open System.ServiceModel
 
-[<ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple, IncludeExceptionDetailInFaults = true)>]
-type TestAdapterService() = 
+[<ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple, 
+                  IncludeExceptionDetailInFaults = true)>]
+type TestAdapterService(getCoverageData) = 
     interface ITestAdapterService with
         
         member __.DiscoverTests rebasePaths tdSearchPath ignoredTestsPattern assemblyPath = 
@@ -11,9 +12,7 @@ type TestAdapterService() =
             TestAdapterExtensions.discoverTestsCB rebasePaths tdSearchPath ignoredTestsPattern cb.OnTestDiscovered 
                 assemblyPath
         
-        member __.ExecuteTests teSearchPath testCase = 
-            Seq.singleton testCase
-            |> TestAdapterExtensions.executeTest teSearchPath
-            |> Seq.head
-        
-        member __.ExecuteTestsAndCollectCoverageData teSearchPath testCase = Prelude.undefined
+        member __.ExecuteTest teSearchPath testCase = testCase |> TestAdapterExtensions.executeTest teSearchPath
+        member __.ExecuteTestsAndCollectCoverageData teSearchPath testCase = 
+            { Result = TestAdapterExtensions.executeTest teSearchPath testCase
+              CoverageData = getCoverageData() }

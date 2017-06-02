@@ -166,7 +166,7 @@ namespace R4nd0mApps.TddStud10.TestHost
             using (System.ServiceModel.ServiceHost serviceHost = new System.ServiceModel.ServiceHost(ccServer))
             {
                 LogInfo("TestHost: Created Service Host.");
-                string address = Marker.CreateCodeCoverageDataCollectorEndpointAddress();
+                string address = MarkerV1.CreateCodeCoverageDataCollectorEndpointAddress();
                 NetNamedPipeBinding binding = new NetNamedPipeBinding(NetNamedPipeSecurityMode.None);
                 serviceHost.AddServiceEndpoint(typeof(ICoverageDataCollector), binding, address);
                 serviceHost.Open();

@@ -46,14 +46,14 @@ let createCDC() =
     let cdc = CoverageDataCollector()
     let fcc = FakeCallContext()
     let m = 
-        Marker
+        MarkerV1
             (Func<ICoverageDataCollector>(fun () -> upcast cdc), false, 
              Func<string, obj>(fcc.GetData), Action<string, obj>(fcc.SetData))
     cdc, m
 
 let createCDC2 cdc db = 
     let fcc = FakeCallContext()
-    Marker
+    MarkerV1
         (Func<ICoverageDataCollector>(fun () -> cdc), (db = Attached), 
             Func<string, obj>(fcc.GetData), Action<string, obj>(fcc.SetData))
 

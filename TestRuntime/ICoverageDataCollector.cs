@@ -14,4 +14,11 @@ namespace R4nd0mApps.TddStud10.TestRuntime
         [OperationContract]
         void ExitUnitTest(string testRunId, string source, string document, string line);
     }
+
+    [ServiceContract(Namespace = "https://www.tddstud10.r4nd0mapps.com")]
+    public interface ICoverageDataCollector2
+    {
+        [OperationContract]
+        void EnterSequencePoint(string assemblyId, string methodMdRid, string spNum);
+    }
 }

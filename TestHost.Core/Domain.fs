@@ -2,7 +2,6 @@
 
 open R4nd0mApps.TddStud10.Common.Domain
 open System
-open System.Collections.Generic
 
 [<CLIMutable>]
 type DTestCase2 = 
@@ -14,4 +13,15 @@ type DTestCase2 =
       CodeFilePath : FilePath
       LineNumber : DocumentCoordinate }
 
-type PerDocumentSequencePoints2 = IReadOnlyDictionary<FilePath, seq<SequencePoint>>
+type TestAssemblyId = string
+
+type MethodMdRid = string
+
+type SequencePointNumber = string
+
+type TestCoverageData = seq<TestAssemblyId * MethodMdRid * SequencePointNumber>
+
+[<CLIMutable>]
+type DTestResultWithCoverageData = 
+    { Result : DTestResult
+      CoverageData : TestCoverageData }

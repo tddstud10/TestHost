@@ -14,7 +14,7 @@ type CoverageDataCollector() =
     let tempStore = new ConcurrentDictionary<string, ConcurrentBag<string * string * string>>()
     
     let enterSequencePoint testRunId assemblyId methodMdRid spId = 
-        if testRunId = null || assemblyId = null || methodMdRid = null || spId = null then 
+        if isNull testRunId || isNull assemblyId || isNull methodMdRid || isNull spId then 
             logger.logErrorf "CoverageDataCollector: EnterSequencePoint: Invalid payload: %s %s %s %s" testRunId 
                 assemblyId methodMdRid spId
         else 
@@ -22,7 +22,7 @@ type CoverageDataCollector() =
             list.Add(assemblyId, methodMdRid, spId)
     
     let exitUnitTest testRunId source document line = 
-        if testRunId = null || source = null || document = null || line = null then 
+        if isNull testRunId || isNull source || isNull document || isNull line then 
             logger.logErrorf "CoverageDataCollector: ExitUnitTest: Unexpected payload in ExitUnitTest: %s %s %s %s" 
                 testRunId source document line
         else 
@@ -60,3 +60,22 @@ type CoverageDataCollector() =
         member __.ExitUnitTest(testRunId : string, source : string, document : string, line : string) : unit = 
             exitUnitTest testRunId source document line
         member __.Ping() : unit = logger.logInfof "CoverageDataCollector - responding to ping."
+
+[<ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)>]
+type CoverageDataCollector2Service() = 
+    let logger = R4nd0mApps.TddStud10.Logger.LoggerFactory.logger
+    
+    let coverageData = ref <| ConcurrentBag<string * string * string>()
+
+    member __.GetCoverageData () =
+        let ret = coverageData.Value
+        coverageData.Value <- ConcurrentBag<string * string * string>()
+        ret :> seq<_>
+
+    interface ICoverageDataCollector2 with
+        member __.EnterSequencePoint(assemblyId : string, methodMdRid : string, spNum : string) : unit = 
+            if isNull assemblyId || isNull methodMdRid || isNull spNum then 
+                logger.logErrorf "CoverageDataCollector2Service: EnterSequencePoint: Invalid payload: %s %s %s" 
+                    assemblyId methodMdRid spNum
+            else 
+                coverageData.Value.Add(assemblyId, methodMdRid, spNum)

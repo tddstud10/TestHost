@@ -72,6 +72,7 @@
     <Compile Include="TestAdapterExtensions.fs" />
     <Compile Include="ITestAdapterService.fs" />
     <Compile Include="TestAdapterService.fs" />
+    <Compile Include="TestAdapterServiceFactory.fs" />
     <Content Include="paket.references" />
   </ItemGroup>
   <ItemGroup>

@@ -108,7 +108,7 @@ let ``executeTest can execute tests``() =
     let actual =
         testBin
         |> TestAdapterExtensions.discoverTests rebasePaths (TestPlatformExtensions.getLocalPath()) [| |]
-        |> Seq.collect (Seq.singleton >> TestAdapterExtensions.executeTest (TestPlatformExtensions.getLocalPath()))
+        |> Seq.map (TestAdapterExtensions.executeTest (TestPlatformExtensions.getLocalPath()))
         |> Seq.map (fun tr -> tr.DisplayName, tr.Outcome)
         |> Seq.sortBy fst
         |> Seq.toList

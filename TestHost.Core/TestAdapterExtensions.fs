@@ -97,7 +97,7 @@ module TestAdapterExtensions =
         discoverTestsCB rebasePaths tdSearchPath ignoredTests dTests.Add assemblyPath
         dTests :> seq<_>
 
-    let executeTest teSearchPath (tcs : seq<DTestCase2>) =
+    let executeTest teSearchPath (tc : DTestCase2) =
         let tes =
             teSearchPath
             |> findTestExecutors knownAdaptersMap
@@ -106,8 +106,6 @@ module TestAdapterExtensions =
         let trs = new ConcurrentQueue<DTestResult>()
         te.TestExecuted.Add(trs.Enqueue)
 
-        let tcs =
-            tcs
-            |> Seq.map (fun tc -> tc.TestCase |> DataContract.deserialize<TestCase>)
-        te.ExecuteTests(tes, tcs)
-        trs :> seq<_>
+        let tc = tc.TestCase |> DataContract.deserialize<TestCase>
+        te.ExecuteTests(tes, [ tc ])
+        trs |> Seq.head

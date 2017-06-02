@@ -1,12 +1,15 @@
 // include Fake libs
 #r "./packages/Build/FAKE/tools/FakeLib.dll"
+#r "System.Management.Automation"
 
 open Fake
 open Fake.Testing
 open System
 open System.IO
+open System.Management.Automation
 
 MSBuildDefaults <- { MSBuildDefaults with Verbosity = Some MSBuildVerbosity.Minimal }
+let assemblyVersion = EnvironmentHelper.environVarOrDefault "GitVersion_AssemblySemVer" "0.1.0.0"
 
 // Directories
 let packagesDir = __SOURCE_DIRECTORY__ @@ "packages" @@ "Build"
@@ -38,6 +41,14 @@ Target "Build" (fun _ ->
     !! solutionFile
     |> MSBuild buildDir "Build" msbuildProps
     |> ignore
+)
+
+Target "UpdateAppConfig" (fun _ ->
+    PowerShell
+        .Create()
+        .AddScript(__SOURCE_DIRECTORY__ @@ "tools" @@ (sprintf "UpdateAppConfig.ps1 -BuildDir %s -Version %s" buildDir assemblyVersion))
+        .Invoke()
+        |> Seq.iter (printfn "%O")
 )
 
 Target "GitLink" (fun _ ->
@@ -94,6 +105,7 @@ Target "Publish" (fun _ ->
 "Clean" ==> "Rebuild" 
 "Build" ==> "Rebuild" 
 "Build" ?=> "UnitTests" ==> "Test"
+"UpdateAppConfig" ==> "ContractTests"
 "Build" ?=> "ContractTests" ==> "Test"
 "Rebuild" ==> "Test"
 "GitLink" ==> "Package"

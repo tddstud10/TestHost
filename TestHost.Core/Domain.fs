@@ -3,6 +3,8 @@
 open R4nd0mApps.TddStud10.Common.Domain
 open System
 
+type ExecutorUri = Uri
+
 [<CLIMutable>]
 type DTestCase2 = 
     { TestCase : string

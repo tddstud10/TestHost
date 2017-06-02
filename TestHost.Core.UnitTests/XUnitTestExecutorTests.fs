@@ -46,7 +46,7 @@ let ``Can run re-hydrated tests``() =
                   TestPlatformExtensions.getLocalPath().ToString()))
     let te = 
         TestPlatformExtensions.getLocalPath() 
-        |> TestPlatformExtensions.loadTestAdapter :?> ITestExecutor
+        |> TestPlatformExtensions.loadTestAdapter<ITestExecutor>
     it.ExecuteTests([ te ], tests)
     let actualTests = 
         tos

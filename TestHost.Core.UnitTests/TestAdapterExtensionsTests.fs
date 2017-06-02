@@ -1,11 +1,11 @@
 ﻿module R4nd0mApps.TddStud10.TestHost.TestAdapterExtensionsTests
 
-open R4nd0mApps.TddStud10.Common
 open R4nd0mApps.TddStud10.Common.Domain
 open R4nd0mApps.TddStud10.TestExecution
 open global.Xunit
 open FsUnit.Xunit
 open Microsoft.VisualStudio.TestPlatform.ObjectModel
+open R4nd0mApps.TddStud10.TestHost.TestAdapterExtensions
 
 let testDataRoot = 
     FilePath.combine [ TestPlatformExtensions.getLocalPath()
@@ -13,13 +13,13 @@ let testDataRoot =
 
 let adapterMap = 
     [ (FilePath "aunit.testadapter.dll", 
-       [ ("ITestDiscoverer", "AUnit.TestAdapter.VsDiscoverer")
-         ("ITestExecutor", "AUnit.TestAdapter.VsTestExecutor") ]
-       |> Map.ofList)
+       { Discoverer = "AUnit.TestAdapter.VsDiscoverer"
+         Executor = "AUnit.TestAdapter.VsTestExecutor"
+         ExecutorUri = ExecutorUri("executor://undefined") })
       (FilePath "bUnit.Testadapter.dll", 
-       [ ("ITestDiscoverer", "BUnit.TestAdapter.VsTestDiscoverer")
-         ("ITestExecutor", "BUnit.TestAdapter.VsTestExecutor") ]
-       |> Map.ofList) ]
+       { Discoverer = "BUnit.TestAdapter.VsTestDiscoverer"
+         Executor = "BUnit.TestAdapter.VsTestExecutor" 
+         ExecutorUri = ExecutorUri("executor://undefined") }) ]
     |> Map.ofList
 
 let ``Test Data for Nested search path with no adapters, return empty`` : obj array seq = 
@@ -45,10 +45,10 @@ let ``Nested search path with no adapters, return empty`` (f : FilePath -> obj s
     Assert.Empty(sp |> f)
 
 let ``Test Data for Nested Search path with 2 adapters, return both`` : obj array seq = 
-    [| (TestAdapterExtensions.findTestDiscoverers adapterMap >> Seq.map box, 
+    [| (TestAdapterExtensions.findTestDiscoverers adapterMap >> Seq.map (snd >> box), 
         [ "AUnit.TestAdapter.VsDiscoverer"; "BUnit.TestAdapter.VsTestDiscoverer" ])
        
-       (TestAdapterExtensions.findTestExecutors adapterMap >> Seq.map box, 
+       (TestAdapterExtensions.findTestExecutors adapterMap >> Seq.map (snd >> box), 
         [ "AUnit.TestAdapter.VsTestExecutor"; "BUnit.TestAdapter.VsTestExecutor" ]) |]
     |> Seq.map (fun (a, b) -> 
            [| box a

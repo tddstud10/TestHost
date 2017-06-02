@@ -14,15 +14,15 @@ let logger = R4nd0mApps.TddStud10.Logger.LoggerFactory.logger
 
 let getLocalPath = Path.getLocalPath >> FilePath
 
-let loadTestAdapter (FilePath binDir) = 
+let loadTestAdapter<'T> (FilePath binDir) = 
     let aPath = Path.Combine(binDir, "xunit.runner.visualstudio.testadapter.dll")
     logger.logInfof "Loading Test Adapter from %s" aPath
     let ta = 
         Assembly.LoadFrom(aPath)
         |> fun a -> a.GetType("Xunit.Runner.VisualStudio.TestAdapter.VsTestRunner")
-        |> fun t -> Activator.CreateInstance(t)
+        |> fun t -> t |> Activator.CreateInstance :?> 'T
     logger.logInfof "Test Adapter loaded"
-    ta
+    ExecutorUri("executor://xunit/VsTestRunner2"), ta
 
 let toDTestCase (tc : TestCase) : DTestCase =
     { DtcId = tc.Id

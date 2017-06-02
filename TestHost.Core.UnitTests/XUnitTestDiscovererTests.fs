@@ -36,7 +36,7 @@ let ``Can discover theory and facts from test assembly``() =
     let it, tcs = createDiscoverer()
     let td = 
         TestPlatformExtensions.getLocalPath() 
-        |> TestPlatformExtensions.loadTestAdapter :?> ITestDiscoverer
+        |> TestPlatformExtensions.loadTestAdapter<ITestDiscoverer>
     it.DiscoverTests([ td ], testBin, Array.empty<string>)
     let actualTests = 
         tcs
@@ -50,7 +50,7 @@ let ``Can ignore discover theory and facts from test assembly``() =
     let it, tcs = createDiscoverer()
     let td = 
         TestPlatformExtensions.getLocalPath() 
-        |> TestPlatformExtensions.loadTestAdapter :?> ITestDiscoverer
+        |> TestPlatformExtensions.loadTestAdapter<ITestDiscoverer>
     let filteredTestName = "XUnit20FSPortable.UnitTests.Theory Tests"
    
     it.DiscoverTests([ td ], testBin, [|filteredTestName|])

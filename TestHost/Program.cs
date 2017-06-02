@@ -128,7 +128,7 @@ namespace R4nd0mApps.TddStud10.TestHost
                 });
         }
 
-        private static void DiscoverUnitTests(IEnumerable<ITestDiscoverer> tds, string slnPath, string slnSnapPath, string discoveredUnitTestsStore, string discoveredUnitDTestsStore, string buildOutputRoot, DateTime timeFilter, string[] ignoredTests)
+        private static void DiscoverUnitTests(IEnumerable<Tuple<Uri, ITestDiscoverer>> tds, string slnPath, string slnSnapPath, string discoveredUnitTestsStore, string discoveredUnitDTestsStore, string buildOutputRoot, DateTime timeFilter, string[] ignoredTests)
         {
             Logger.LogInfo("DiscoverUnitTests: starting discovering.");
             var testsPerAssembly = new PerDocumentLocationTestCases();
@@ -184,7 +184,7 @@ namespace R4nd0mApps.TddStud10.TestHost
             LogError("Exception thrown in InvokeEngine: {0}.", e.ExceptionObject);
         }
 
-        private static bool RunTests(IEnumerable<ITestExecutor> tes, string buildRoot, string testResultsStore, string testFailureInfoStore, PerDocumentLocationTestCases discoveredUnitTests)
+        private static bool RunTests(IEnumerable<Tuple<Uri, ITestExecutor>> tes, string buildRoot, string testResultsStore, string testFailureInfoStore, PerDocumentLocationTestCases discoveredUnitTests)
         {
             Stopwatch stopWatch = new Stopwatch();
 

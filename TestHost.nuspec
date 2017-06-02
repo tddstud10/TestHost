@@ -28,6 +28,9 @@
     <file src="..\build\TddStud10.TestHost.exe" target="lib" /> 
     <file src="..\build\TddStud10.TestHost.exe.config" target="lib" /> 
     <file src="..\build\TddStud10.TestHost.pdb" target="lib" /> 
+    <file src="..\build\R4nd0mApps.TddStud10.TestAdapterServiceHost.exe" target="lib" /> 
+    <file src="..\build\R4nd0mApps.TddStud10.TestAdapterServiceHost.exe.config" target="lib" /> 
+    <file src="..\build\R4nd0mApps.TddStud10.TestAdapterServiceHost.pdb" target="lib" /> 
     <file src="..\ObjectModel\Microsoft.VisualStudio.TestPlatform.ObjectModel.dll" target="lib" /> 
     <file src="..\ObjectModel\msdia120typelib_clr0200.dll" target="lib" /> 
   </files>

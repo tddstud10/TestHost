@@ -21,7 +21,9 @@ let rebasePaths =
 [<Fact>]
 let ``Adapter service can discover and run tests``() = 
     let testCases = ConcurrentBag<DTestCase2>()
-    let proc, svc = TestAdapterServiceFactory.create testCases.Add
+    let svcCB = TestAdapterServiceFactory.TestAdapterServiceCallback()
+    svcCB.Callback <- testCases.Add
+    let proc, svc = TestAdapterServiceFactory.create svcCB
     svc.DiscoverTests rebasePaths adapterSearchPath [||] assemblyPath
     let results = 
         testCases
@@ -37,7 +39,9 @@ let ``Adapter service can discover and run tests``() =
 [<Fact>]
 let ``Adapter service can run tests and collect coverage data``() = 
     let testCases = ConcurrentBag<DTestCase2>()
-    let proc, svc = TestAdapterServiceFactory.create testCases.Add
+    let svcCB = TestAdapterServiceFactory.TestAdapterServiceCallback()
+    svcCB.Callback <- testCases.Add
+    let proc, svc = TestAdapterServiceFactory.create svcCB
     svc.DiscoverTests rebasePaths adapterSearchPath [||] assemblyPath
     let results = 
         testCases

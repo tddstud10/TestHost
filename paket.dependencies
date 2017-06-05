@@ -26,3 +26,5 @@ group TddStud10
     nuget FSharp.Core 4.0.0.1 redirects: force
     source https://ci.appveyor.com/nuget/common-wqs82t184w0x
     nuget TddStud10.Common 
+    source https://ci.appveyor.com/nuget/xtestplatform-ve52h0rqj3nc
+    nuget R4nd0mApps.XTestPlatform 

@@ -3,25 +3,30 @@
 open R4nd0mApps.TddStud10.Common.Domain
 open System
 open Xunit
+open R4nd0mApps.XTestPlatform.Api
 
 let createFailedTR() = 
-    { DisplayName = "???" 
+    { XTestResult.DisplayName = "???" 
       TestCase =
-        { DtcId = Guid()
+        { XTestCase.Id = Guid()
           FullyQualifiedName = "fqn"
           DisplayName = "???"
-          Source = FilePath "a.dll"
-          CodeFilePath = FilePath "???"
-          LineNumber = DocumentCoordinate 0 }
-      Outcome = TOFailed
+          Source = "a.dll"
+          CodeFilePath = "???"
+          LineNumber = 0
+          TestCase = ""
+          ExtensionUri = Uri("executor://custom") }
+      Outcome = XTestOutcome.Failed
       ErrorStackTrace = null
-      ErrorMessage = null }
+      ErrorMessage = null
+      StartTime = DateTimeOffset.UtcNow.AddMinutes(-1.0)
+      EndTime = DateTimeOffset.UtcNow }
 
 let ``If not Failure return empty seq - data`` : obj array seq = 
-        [| TONone
-           TONotFound
-           TOPassed
-           TOSkipped |]
+        [| XTestOutcome.None
+           XTestOutcome.NotFound
+           XTestOutcome.Passed
+           XTestOutcome.Skipped |]
         |> Seq.map (fun a -> [| box a |])
 
 [<Theory>]

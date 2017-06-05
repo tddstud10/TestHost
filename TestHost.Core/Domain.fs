@@ -1,19 +1,6 @@
 ﻿namespace R4nd0mApps.TddStud10.TestHost
 
-open R4nd0mApps.TddStud10.Common.Domain
-open System
-
-type ExecutorUri = Uri
-
-[<CLIMutable>]
-type DTestCase2 = 
-    { TestCase : string
-      DtcId : Guid
-      FullyQualifiedName : string
-      DisplayName : string
-      Source : FilePath
-      CodeFilePath : FilePath
-      LineNumber : DocumentCoordinate }
+open R4nd0mApps.XTestPlatform.Api
 
 type TestAssemblyId = string
 
@@ -25,5 +12,5 @@ type TestCoverageData = seq<TestAssemblyId * MethodMdRid * SequencePointNumber>
 
 [<CLIMutable>]
 type DTestResultWithCoverageData = 
-    { Result : DTestResult
+    { Result : XTestResult
       CoverageData : TestCoverageData }

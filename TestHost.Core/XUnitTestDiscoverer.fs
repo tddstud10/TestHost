@@ -1,27 +1,31 @@
 ﻿namespace R4nd0mApps.TddStud10.TestExecution.Adapters
 
 open Microsoft.FSharp.Control
-open Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter
 open R4nd0mApps.TddStud10.Common.Domain
-open R4nd0mApps.TddStud10.TestExecution
-open R4nd0mApps.TddStud10.TestHost
+open R4nd0mApps.XTestPlatform.Api
 
 type XUnitTestDiscoverer() = 
-    let dc = TestPlatformExtensions.createDiscoveryContext()
-    let ml = TestPlatformExtensions.createMessageLogger()
-    let ds = TestPlatformExtensions.createDiscoverySink
-    let filteredTest = new Event<Microsoft.VisualStudio.TestPlatform.ObjectModel.TestCase>()
+    let filteredTest = new Event<_>()
     let testDiscovered = new Event<_>()
-    let isValidTest = 
-        fun ignoredTests (testCase : Microsoft.VisualStudio.TestPlatform.ObjectModel.TestCase) -> 
-            not 
-                (ignoredTests 
-                 |> Array.exists (fun ignoredTestPattern -> testCase.FullyQualifiedName.StartsWith(ignoredTestPattern)))
+    
+    let isValidTest ignoredTests (testCase : XTestCase) = 
+        ignoredTests
+        |> Array.exists testCase.FullyQualifiedName.StartsWith
+        |> not
+    
+    let createDiscSink cb = 
+        { new IXTestCaseDiscoverySink with
+              member __.SendTestCase(discoveredTest : XTestCase) : unit = discoveredTest |> cb }
+    
+    let createMessageLogger() = 
+        { new IXMessageLogger with
+              member it.SendMessage(_ : XTestMessageLevel, _ : string) : unit = () }
+    
     member public __.TestDiscovered = filteredTest.Publish
-    member public __.DiscoverTests(tds : (ExecutorUri * ITestDiscoverer) seq, FilePath asm, ignoredTests : string []) = 
+    member public __.DiscoverTests(tds : IXTestDiscoverer seq, FilePath asm, ignoredTests : string []) = 
         testDiscovered.Publish
         |> Event.filter (fun testCase -> isValidTest ignoredTests testCase)
         |> Event.add (fun testCase -> filteredTest.Trigger(testCase))
         tds
-        |> Seq.map (fun (_, td) -> td.DiscoverTests([ asm ], dc, ml, ds testDiscovered.Trigger))
+        |> Seq.map (fun td -> td.DiscoverTests([ asm ], createMessageLogger (), createDiscSink testDiscovered.Trigger))
         |> Seq.fold (fun _ -> id) ()

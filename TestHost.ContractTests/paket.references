@@ -7,4 +7,5 @@ group Test
     xunit.runner.visualstudio
 
 group TddStud10
+    R4nd0mApps.XTestPlatform
     TddStud10.Common

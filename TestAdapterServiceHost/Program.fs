@@ -7,6 +7,7 @@ open System.ServiceModel.Description
 open R4nd0mApps.TddStud10.Common
 open R4nd0mApps.TddStud10.TestHost
 open R4nd0mApps.TddStud10.TestRuntime
+open System.Threading
 
 let private logger = R4nd0mApps.TddStud10.Logger.LoggerFactory.logger
 
@@ -53,6 +54,6 @@ let main argv =
     Environment.SetEnvironmentVariable(Marker.CoverageDataCollectorAddressEnvVarName, covDataSvcAddress)
     startTestAdapterService uriShare covDataSvc.GetCoverageData
 
-    Console.ReadLine() |> ignore
+    Thread.Sleep(Timeout.Infinite)
 
     0

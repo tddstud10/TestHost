@@ -1,18 +1,21 @@
 ﻿namespace R4nd0mApps.TddStud10.TestExecution.Adapters
 
-open Microsoft.VisualStudio.TestPlatform.ObjectModel
-open Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter
-open R4nd0mApps.TddStud10.TestExecution
-open R4nd0mApps.TddStud10.TestHost
+open R4nd0mApps.XTestPlatform.Api
 
 type XUnitTestExecutor() = 
-    let rc = TestPlatformExtensions.createRunContext()
-    let fh = TestPlatformExtensions.createFrameworkHandle
+    let logger = R4nd0mApps.TddStud10.Logger.LoggerFactory.logger
+
     let testExecuted = new Event<_>()
+    
+    let createExeSink cb = 
+        { new IXTestCaseExecutionSink with
+              member __.RecordResult(testResult : XTestResult) : unit = testResult |> cb
+              member __.SendMessage(ml : XTestMessageLevel, m : string) : unit = logger.logInfof "Message from test case: %A: %s" ml m }
+    
     member public __.TestExecuted = testExecuted.Publish
-    member public __.ExecuteTests(tes : (ExecutorUri * ITestExecutor) seq, tests : TestCase seq) = 
+    member public __.ExecuteTests(tes : IXTestExecutor seq, tests : XTestCase seq) = 
         tes
-        |> Seq.map (fun (eu, te) -> 
-               let ts = tests |> Seq.filter (fun t -> t.ExecutorUri = eu)
-               te.RunTests(ts, rc, fh testExecuted.Trigger))
+        |> Seq.map (fun te -> 
+               let ts = tests |> Seq.filter (fun t -> t.ExtensionUri = te.ExtensionUri)
+               te.RunTests(ts, createExeSink testExecuted.Trigger))
         |> Seq.fold (fun _ -> id) ()

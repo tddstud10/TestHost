@@ -98,19 +98,25 @@
     <Content Include="paket.references" />
     <Content Include="app.config" />
     <Compile Include="TestRuntime\DependencyTests.fs" />
-    <EmbeddedResource Include="Resources\Resources.resx" />
     <Compile Include="CoverageDataCollectorTests.fs" />
     <Compile Include="XUnitTestExecutorTests.fs" />
     <Compile Include="XUnitTestDiscovererTests.fs" />
     <Compile Include="TestFailureInfoExtensionsTests.fs" />
     <Compile Include="TestAdapterExtensionsTests.fs" />
+    <None Include="..\packages\tddstud10\R4nd0mApps.XTestPlatform\lib\Xtensions\VS\Microsoft.VisualStudio.TestPlatform.ObjectModel.dll">
+      <Link>Xtensions\VS\Microsoft.VisualStudio.TestPlatform.ObjectModel.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\packages\tddstud10\R4nd0mApps.XTestPlatform\lib\Xtensions\VS\msdia120typelib_clr0200.dll">
+      <Link>Xtensions\VS\msdia120typelib_clr0200.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\packages\tddstud10\R4nd0mApps.XTestPlatform\lib\Xtensions\VS\R4nd0mApps.XTestPlatform.VS.dll">
+      <Link>Xtensions\VS\R4nd0mApps.XTestPlatform.VS.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.VisualStudio.TestPlatform.ObjectModel, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <SpecificVersion>True</SpecificVersion>
-      <HintPath>..\ObjectModel\Microsoft.VisualStudio.TestPlatform.ObjectModel.dll</HintPath>
-      <Paket>false</Paket>
-    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -129,9 +135,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <PropertyGroup>
-    <PostBuildEvent>xcopy /frys $(ProjectDir)\TestData $(TargetDir)\TestData\
-xcopy /frys $(ProjectDir)\..\TestData $(TargetDir)\TestData
-</PostBuildEvent>
+    <PostBuildEvent>xcopy /frys $(ProjectDir)..\TestData $(TargetDir)TestData\</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -313,6 +317,13 @@ xcopy /frys $(ProjectDir)\..\TestData $(TargetDir)\TestData
     </When>
   </Choose>
   <ItemGroup>
+    <Reference Include="R4nd0mApps.XTestPlatform.Api">
+      <HintPath>..\packages\tddstud10\R4nd0mApps.XTestPlatform\lib\R4nd0mApps.XTestPlatform.Api.dll</HintPath>
+      <Private>True</Private>
+      <Paket>True</Paket>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="R4nd0mApps.TddStud10.Common.Domain">
       <HintPath>..\packages\tddstud10\TddStud10.Common\lib\R4nd0mApps.TddStud10.Common.Domain.dll</HintPath>
       <Private>True</Private>
@@ -416,6 +427,11 @@ xcopy /frys $(ProjectDir)\..\TestData $(TargetDir)\TestData
       <ItemGroup>
         <Reference Include="Microsoft.TestPlatform.CoreUtilities">
           <HintPath>..\packages\test\Microsoft.TestPlatform.ObjectModel\lib\netstandard1.5\Microsoft.TestPlatform.CoreUtilities.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+        <Reference Include="Microsoft.VisualStudio.TestPlatform.ObjectModel">
+          <HintPath>..\packages\test\Microsoft.TestPlatform.ObjectModel\lib\netstandard1.5\Microsoft.VisualStudio.TestPlatform.ObjectModel.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>

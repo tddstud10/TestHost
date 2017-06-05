@@ -1,6 +1,5 @@
 ﻿module R4nd0mApps.TddStud10.TestExecution.Adapters.XUnitTestExecutorTests
 
-open Microsoft.VisualStudio.TestPlatform.ObjectModel
 open R4nd0mApps.TddStud10.TestExecution
 open System.Collections.Concurrent
 open System.IO
@@ -8,27 +7,35 @@ open System.Runtime.Serialization
 open System.Xml
 open Xunit
 open R4nd0mApps.TddStud10.Common.Domain
-open Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter
 open System.Resources
 open System.Reflection
+open R4nd0mApps.XTestPlatform.Api
+
+let getLocalPath = Path.getLocalPath >> FilePath
+
+let testBin = 
+    ()
+    |> getLocalPath
+    |> fun (FilePath p) -> Path.Combine(p, "TestData/bins/XUnit20FSPortable/XUnit20FSPortable.dll")
+    |> FilePath
 
 let expectedTests = 
-    [ "XUnit20FSPortable.UnitTests.Fact Test 1", TOPassed
-      "XUnit20FSPortable.UnitTests.Fact Test 2", TOFailed
-      "XUnit20FSPortable.UnitTests.Theory Tests(input: 1)", TOPassed
-      "XUnit20FSPortable.UnitTests.Theory Tests(input: 2)", TOFailed ]
+    [ "XUnit20FSPortable.UnitTests.Fact Test 1", XTestOutcome.Passed
+      "XUnit20FSPortable.UnitTests.Fact Test 2", XTestOutcome.Failed
+      "XUnit20FSPortable.UnitTests.Theory Tests(input: 1)", XTestOutcome.Passed
+      "XUnit20FSPortable.UnitTests.Theory Tests(input: 2)", XTestOutcome.Failed ]
+
+let createDiscoverer() = 
+    let td = new XUnitTestDiscoverer()
+    let tcs = new ConcurrentBag<_>()
+    td.TestDiscovered |> Observable.add tcs.Add
+    td, tcs
 
 let createExecutor() = 
     let te = new XUnitTestExecutor()
-    let trs = new ConcurrentQueue<DTestResult>()
+    let trs = new ConcurrentQueue<_>()
     te.TestExecuted |> Observable.add trs.Enqueue
     te, trs
-
-let rehydrateTestCases tcs = 
-    let serializer = new DataContractSerializer(typeof<TestCase []>)
-    use sr = new StringReader(tcs)
-    use xtr = new XmlTextReader(sr)
-    serializer.ReadObject(xtr) :?> TestCase []
 
 [<Fact>]
 let ``Can run successfully on assemblies with no tests``() = 
@@ -37,17 +44,13 @@ let ``Can run successfully on assemblies with no tests``() =
 
 [<Fact>]
 let ``Can run re-hydrated tests``() = 
-    let res = ResourceManager("Resources.Resources", Assembly.GetExecutingAssembly())
+    let it, tests = createDiscoverer()
+    let td = getLocalPath().ToString() |> AdapterLoader.LoadDiscoverers
+    it.DiscoverTests(td, testBin, Array.empty<string>)
+    
+    let te = getLocalPath().ToString() |> AdapterLoader.LoadExecutors
     let it, tos = createExecutor()
-    let tests = 
-        rehydrateTestCases 
-            (res.GetString("XUnit20FSPortableTests").Replace
-                 (@"D:\src\r4nd0mapps\tddstud10\TestHost.Core.UnitTests\bin\Debug", 
-                  TestPlatformExtensions.getLocalPath().ToString()))
-    let te = 
-        TestPlatformExtensions.getLocalPath() 
-        |> TestPlatformExtensions.loadTestAdapter<ITestExecutor>
-    it.ExecuteTests([ te ], tests)
+    it.ExecuteTests(te, tests)
     let actualTests = 
         tos
         |> Seq.map (fun t -> t.DisplayName, t.Outcome)

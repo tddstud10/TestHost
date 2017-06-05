@@ -91,6 +91,7 @@ Target "Package" (fun _ ->
             Version = EnvironmentHelper.environVarOrDefault "GitVersion_NuGetVersion" "0.0.0-alpha00"
             Dependencies = [ "FSharp.Core", ".." 
                              "Mono.Cecil", ".."
+                             "R4nd0mApps.XTestPlatform", "../TddStud10"
                              "TddStud10.Common", "../TddStud10" ]
                            |> List.map (fun (d,g) -> d, GetPackageVersion (packagesDir @@ g) d)
             OutputPath = buildDir })

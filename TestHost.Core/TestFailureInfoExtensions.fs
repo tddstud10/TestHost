@@ -5,10 +5,12 @@ open System
 open System.Text.RegularExpressions
 
 module TestFailureInfoExtensions = 
+    open R4nd0mApps.XTestPlatform.Api
+    
     let private stackFrameCracker = 
         Regex("""^at (?<atMethod>(.*)) in (?<document>(.*))\:line (?<line>(\d+))$""", RegexOptions.Compiled)
     
-    let create (tr : DTestResult) : seq<DocumentLocation * TestFailureInfo> = 
+    let create (tr : XTestResult) : seq<DocumentLocation * TestFailureInfo> = 
         let parseSF input = 
             let m = input |> stackFrameCracker.Match
             if m.Success then 
@@ -20,7 +22,7 @@ module TestFailureInfoExtensions =
                        |> DocumentCoordinate })
                 |> ParsedFrame
             else input |> UnparsedFrame
-        if tr.Outcome <> TOFailed || tr.ErrorStackTrace = null then Seq.empty
+        if tr.Outcome <> Failed || isNull tr.ErrorStackTrace then Seq.empty
         else 
             let stack = 
                 tr.ErrorStackTrace.Split([| "\r\n"; "\r"; "\n" |], StringSplitOptions.RemoveEmptyEntries)
@@ -36,4 +38,4 @@ module TestFailureInfoExtensions =
             stack |> Seq.choose (fun sf -> 
                          match sf with
                          | ParsedFrame(_, dl) -> Some(dl, tfi)
-                         | _ -> None)
+                         | _ -> Option.None)

@@ -1,12 +1,10 @@
 ﻿using Microsoft.FSharp.Control;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using R4nd0mApps.TddStud10.Common;
 using R4nd0mApps.TddStud10.Common.Domain;
 using R4nd0mApps.TddStud10.Logger;
-using R4nd0mApps.TddStud10.TestExecution;
 using R4nd0mApps.TddStud10.TestExecution.Adapters;
 using R4nd0mApps.TddStud10.TestRuntime;
+using R4nd0mApps.XTestPlatform.Api;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -65,14 +63,14 @@ namespace R4nd0mApps.TddStud10.TestHost
             var searchPath = FilePath.NewFilePath(Path.Combine(Path.GetDirectoryName(slnSnapPath), "packages"));
             if (command == "discover")
             {
-                var tds = TestAdapterExtensions.findTestDiscoverers(TestAdapterExtensions.knownAdaptersMap).Invoke(searchPath);
+                var tds = AdapterLoader.LoadDiscoverers.Invoke(searchPath.Item);
                 DiscoverUnitTests(tds, slnPath, slnSnapPath, discoveredUnitTestsStore, discoveredUnitDTestsStore, buildRoot, new DateTime(long.Parse(timeFilter)), ignoredTests);
                 LogInfo("TestHost: Exiting Main.");
                 return 0;
             }
             else
             {
-                var tes = TestAdapterExtensions.findTestExecutors(TestAdapterExtensions.knownAdaptersMap).Invoke(searchPath);
+                var tes = AdapterLoader.LoadExecutors.Invoke(searchPath.Item);
                 var allTestsPassed = false;
                 if (_debuggerAttached)
                 {
@@ -80,7 +78,7 @@ namespace R4nd0mApps.TddStud10.TestHost
                 }
                 else
                 {
-                    allTestsPassed = ExecuteTestWithCoverageDataCollection(() => RunTests(tes, buildRoot, testResultsStore, testFailureInfoStore, PerDocumentLocationTestCases.Deserialize(FilePath.NewFilePath(discoveredUnitTestsStore))), codeCoverageStore);
+                    allTestsPassed = ExecuteTestWithCoverageDataCollection(() => RunTests(tes, buildRoot, testResultsStore, testFailureInfoStore, PerDocumentLocationXTestCases.Deserialize(FilePath.NewFilePath(discoveredUnitTestsStore))), codeCoverageStore);
                 }
 
                 LogInfo("TestHost: Exiting Main.");
@@ -88,15 +86,15 @@ namespace R4nd0mApps.TddStud10.TestHost
             }
         }
 
-        private static PerDocumentLocationTestCases GetTestToDebug(string discoveredUnitTestsStore, string discoveredUnitDTestsStore)
+        private static PerDocumentLocationXTestCases GetTestToDebug(string discoveredUnitTestsStore, string discoveredUnitDTestsStore)
         {
-            var discoveredUnitTests = PerDocumentLocationTestCases.Deserialize(FilePath.NewFilePath(discoveredUnitTestsStore));
+            var discoveredUnitTests = PerDocumentLocationXTestCases.Deserialize(FilePath.NewFilePath(discoveredUnitTestsStore));
             var discoveredUnitDTests = PerDocumentLocationDTestCases.Deserialize(FilePath.NewFilePath(discoveredUnitDTestsStore));
 
             var dtc = discoveredUnitDTests.Values.First().First();
             var dl = new DocumentLocation(dtc.CodeFilePath, dtc.LineNumber);
 
-            var testToDebug = new PerDocumentLocationTestCases();
+            var testToDebug = new PerDocumentLocationXTestCases();
             testToDebug.TryAdd(dl, discoveredUnitTests[dl]);
 
             return testToDebug;
@@ -128,10 +126,10 @@ namespace R4nd0mApps.TddStud10.TestHost
                 });
         }
 
-        private static void DiscoverUnitTests(IEnumerable<Tuple<Uri, ITestDiscoverer>> tds, string slnPath, string slnSnapPath, string discoveredUnitTestsStore, string discoveredUnitDTestsStore, string buildOutputRoot, DateTime timeFilter, string[] ignoredTests)
+        private static void DiscoverUnitTests(IEnumerable<IXTestDiscoverer> tds, string slnPath, string slnSnapPath, string discoveredUnitTestsStore, string discoveredUnitDTestsStore, string buildOutputRoot, DateTime timeFilter, string[] ignoredTests)
         {
             Logger.LogInfo("DiscoverUnitTests: starting discovering.");
-            var testsPerAssembly = new PerDocumentLocationTestCases();
+            var testsPerAssembly = new PerDocumentLocationXTestCases();
             var dtestsPerAssembly = new PerDocumentLocationDTestCases();
             FindAndExecuteForEachAssembly(
                 buildOutputRoot,
@@ -140,16 +138,16 @@ namespace R4nd0mApps.TddStud10.TestHost
                 {
                     var disc = new XUnitTestDiscoverer();
                     disc.TestDiscovered.AddHandler(
-                        new FSharpHandler<TestCase>(
+                        new FSharpHandler<XTestCase>(
                             (o, ea) =>
                             {
                                 var cfp = PathBuilder.rebaseCodeFilePath(FilePath.NewFilePath(slnPath), FilePath.NewFilePath(slnSnapPath), FilePath.NewFilePath(ea.CodeFilePath));
                                 ea.CodeFilePath = cfp.Item;
                                 var dl = new DocumentLocation { document = cfp, line = DocumentCoordinate.NewDocumentCoordinate(ea.LineNumber) };
-                                var tests = testsPerAssembly.GetOrAdd(dl, _ => new ConcurrentBag<TestCase>());
+                                var tests = testsPerAssembly.GetOrAdd(dl, _ => new ConcurrentBag<XTestCase>());
                                 tests.Add(ea);
                                 var dtests = dtestsPerAssembly.GetOrAdd(dl, _ => new ConcurrentBag<DTestCase>());
-                                dtests.Add(TestPlatformExtensions.toDTestCase(ea));
+                                dtests.Add(FromXTestCase(ea));
                             }));
                     disc.DiscoverTests(tds, FilePath.NewFilePath(assemblyPath), ignoredTests);
                 });
@@ -157,6 +155,19 @@ namespace R4nd0mApps.TddStud10.TestHost
             testsPerAssembly.Serialize(FilePath.NewFilePath(discoveredUnitTestsStore));
             dtestsPerAssembly.Serialize(FilePath.NewFilePath(discoveredUnitDTestsStore));
             Logger.LogInfo("Written discovered unit tests to {0} & {1}.", discoveredUnitTestsStore, discoveredUnitDTestsStore);
+        }
+
+        private static DTestCase FromXTestCase(XTestCase ea)
+        {
+            return new DTestCase
+            {
+                CodeFilePath = FilePath.NewFilePath(ea.CodeFilePath),
+                DisplayName = ea.DisplayName,
+                DtcId = ea.Id,
+                FullyQualifiedName = ea.FullyQualifiedName,
+                LineNumber = DocumentCoordinate.NewDocumentCoordinate(ea.LineNumber),
+                Source = FilePath.NewFilePath(ea.Source)
+            };
         }
 
         private static bool ExecuteTestWithCoverageDataCollection(Func<bool> runTests, string codeCoverageStore)
@@ -184,7 +195,7 @@ namespace R4nd0mApps.TddStud10.TestHost
             LogError("Exception thrown in InvokeEngine: {0}.", e.ExceptionObject);
         }
 
-        private static bool RunTests(IEnumerable<Tuple<Uri, ITestExecutor>> tes, string buildRoot, string testResultsStore, string testFailureInfoStore, PerDocumentLocationTestCases discoveredUnitTests)
+        private static bool RunTests(IEnumerable<IXTestExecutor> tes, string buildRoot, string testResultsStore, string testFailureInfoStore, PerDocumentLocationXTestCases discoveredUnitTests)
         {
             Stopwatch stopWatch = new Stopwatch();
 
@@ -203,7 +214,7 @@ namespace R4nd0mApps.TddStud10.TestHost
                     LogInfo("Executing tests in {0}: Start.", test.Key);
                     var exec = new XUnitTestExecutor();
                     exec.TestExecuted.AddHandler(
-                        new FSharpHandler<DTestResult>(
+                        new FSharpHandler<XTestResult>(
                             (o, ea) =>
                             {
                                 NoteTestResults(testResults, ea);
@@ -236,7 +247,7 @@ namespace R4nd0mApps.TddStud10.TestHost
             return !rrs.Any();
         }
 
-        private static void NoteTestFailureInfo(PerDocumentLocationTestFailureInfo pdtfi, DTestResult tr)
+        private static void NoteTestFailureInfo(PerDocumentLocationTestFailureInfo pdtfi, XTestResult tr)
         {
             LogInfo("Noting Test Failure Info: {0} - {1}", tr.DisplayName, tr.Outcome);
 
@@ -252,18 +263,44 @@ namespace R4nd0mApps.TddStud10.TestHost
                 });
         }
 
-        private static void NoteTestResults(PerTestIdDResults testResults, DTestResult tr)
+        private static void NoteTestResults(PerTestIdDResults testResults, XTestResult tr)
         {
             LogInfo("Noting Test Result: {0} - {1}", tr.DisplayName, tr.Outcome);
 
             var testId = new TestId(
-                tr.TestCase.Source,
+                FilePath.NewFilePath(tr.TestCase.Source),
                 new DocumentLocation(
-                    tr.TestCase.CodeFilePath,
-                    tr.TestCase.LineNumber));
+                    FilePath.NewFilePath(tr.TestCase.CodeFilePath),
+                    DocumentCoordinate.NewDocumentCoordinate(tr.TestCase.LineNumber)));
 
             var results = testResults.GetOrAdd(testId, _ => new ConcurrentBag<DTestResult>());
-            results.Add(tr);
+            results.Add(FromXTestResult(tr));
+        }
+
+        private static DTestResult FromXTestResult(XTestResult tr)
+        {
+            return new DTestResult
+            {
+                DisplayName = tr.DisplayName,
+                ErrorMessage = tr.ErrorMessage,
+                ErrorStackTrace = tr.ErrorStackTrace,
+                Outcome = FromXTestOutcome(tr.Outcome),
+                TestCase = FromXTestCase(tr.TestCase)
+            };
+        }
+
+        private static readonly Dictionary<XTestOutcome, DTestOutcome>  outcomeMap = new Dictionary<XTestOutcome, DTestOutcome>
+        {
+            { XTestOutcome.Failed, DTestOutcome.TOFailed },
+            { XTestOutcome.None, DTestOutcome.TONone },
+            { XTestOutcome.NotFound, DTestOutcome.TONotFound },
+            { XTestOutcome.Passed, DTestOutcome.TOPassed },
+            { XTestOutcome.Skipped, DTestOutcome.TOSkipped },
+        };
+
+        private static DTestOutcome FromXTestOutcome(XTestOutcome outcome)
+        {
+            return outcomeMap[outcome];
         }
     }
 }

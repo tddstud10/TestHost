@@ -63,9 +63,8 @@
     </Compile>
     <Compile Include="Domain.fs" />
     <Compile Include="DataContract.fs" />
-    <Compile Include="PerDocumentLocationTestCases.fs" />
+    <Compile Include="PerDocumentLocationXTestCases.fs" />
     <Compile Include="CoverageDataCollector.fs" />
-    <Compile Include="TestPlatformExtensions.fs" />
     <Compile Include="XUnitTestDiscoverer.fs" />
     <Compile Include="XUnitTestExecutor.fs" />
     <Compile Include="TestFailureInfoExtensions.fs" />
@@ -76,10 +75,6 @@
     <Content Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.VisualStudio.TestPlatform.ObjectModel, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <SpecificVersion>True</SpecificVersion>
-      <HintPath>..\ObjectModel\Microsoft.VisualStudio.TestPlatform.ObjectModel.dll</HintPath>
-    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -165,6 +160,13 @@
       </ItemGroup>
     </When>
   </Choose>
+  <ItemGroup>
+    <Reference Include="R4nd0mApps.XTestPlatform.Api">
+      <HintPath>..\packages\tddstud10\R4nd0mApps.XTestPlatform\lib\R4nd0mApps.XTestPlatform.Api.dll</HintPath>
+      <Private>True</Private>
+      <Paket>True</Paket>
+    </Reference>
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="R4nd0mApps.TddStud10.Common.Domain">
       <HintPath>..\packages\tddstud10\TddStud10.Common\lib\R4nd0mApps.TddStud10.Common.Domain.dll</HintPath>

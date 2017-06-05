@@ -6,8 +6,9 @@ open R4nd0mApps.TddStud10.TestExecution
 open System.Collections.Concurrent
 open System.IO
 open global.Xunit
+open R4nd0mApps.XTestPlatform.Api
 
-let adapterSearchPath = TestPlatformExtensions.getLocalPath()
+let adapterSearchPath = Path.getLocalPath() |> FilePath
 
 let assemblyPath = 
     (Path.getLocalPath(), @"TestData2\CSXUnit1xNUnit3x.dll")
@@ -20,7 +21,7 @@ let rebasePaths =
 
 [<Fact>]
 let ``Adapter service can discover and run tests``() = 
-    let testCases = ConcurrentBag<DTestCase2>()
+    let testCases = ConcurrentBag<XTestCase>()
     let svcCB = TestAdapterServiceFactory.TestAdapterServiceCallback()
     svcCB.Callback <- testCases.Add
     let proc, svc = TestAdapterServiceFactory.create svcCB
@@ -33,12 +34,12 @@ let ``Adapter service can discover and run tests``() =
         |> Seq.sortBy fst
         |> Seq.toArray
     proc.Kill()
-    results |> should equal [| """CSXUnit1xNUnit3x.StringTests3.IndexOf(input: "hello world", letter: 'w', expected: 6)""", TOPassed
-                               """CSXUnit1xNUnit3x.StringTests3.TestToSkip""", TOPassed |]
+    results |> should equal [| """CSXUnit1xNUnit3x.StringTests3.IndexOf(input: "hello world", letter: 'w', expected: 6)""", XTestOutcome.Passed
+                               """CSXUnit1xNUnit3x.StringTests3.TestToSkip""", XTestOutcome.Passed |]
 
 [<Fact>]
 let ``Adapter service can run tests and collect coverage data``() = 
-    let testCases = ConcurrentBag<DTestCase2>()
+    let testCases = ConcurrentBag<XTestCase>()
     let svcCB = TestAdapterServiceFactory.TestAdapterServiceCallback()
     svcCB.Callback <- testCases.Add
     let proc, svc = TestAdapterServiceFactory.create svcCB
@@ -54,8 +55,8 @@ let ``Adapter service can run tests and collect coverage data``() =
     proc.Kill()
     results
     |> Array.map fst
-    |> should equal [| """CSXUnit1xNUnit3x.StringTests3.IndexOf(input: "hello world", letter: 'w', expected: 6)""", TOPassed
-                       """CSXUnit1xNUnit3x.StringTests3.TestToSkip""", TOPassed |]
+    |> should equal [| """CSXUnit1xNUnit3x.StringTests3.IndexOf(input: "hello world", letter: 'w', expected: 6)""", XTestOutcome.Passed
+                       """CSXUnit1xNUnit3x.StringTests3.TestToSkip""", XTestOutcome.Passed |]
     results
     |> Array.map snd
     |> should equal [| [| "fff51eec-939d-4472-9c08-b9a275f81d6d", "1", "3"

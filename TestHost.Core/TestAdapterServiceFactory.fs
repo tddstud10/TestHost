@@ -4,11 +4,12 @@ open R4nd0mApps.TddStud10.Common
 open System
 open System.Diagnostics
 open System.ServiceModel
+open R4nd0mApps.XTestPlatform.Api
 
 type TestAdapterServiceCallback() as it = 
     member val Callback = ignore with get, set
     interface ITestAdapterServiceCallback with
-        member __.OnTestDiscovered(testCase : DTestCase2) : unit = testCase |> it.Callback
+        member __.OnTestDiscovered(testCase : XTestCase) : unit = testCase |> it.Callback
 
 let create (svcCV : ITestAdapterServiceCallback) = 
     let uriShare = ServiceDiscovery.createShare()

@@ -1,12 +1,18 @@
 // include Fake libs
 #r "./packages/Build/FAKE/tools/FakeLib.dll"
+#if MONO
+#else
 #r "System.Management.Automation"
+#endif
 
 open Fake
 open Fake.Testing
 open System
 open System.IO
+#if MONO
+#else
 open System.Management.Automation
+#endif
 
 MSBuildDefaults <- { MSBuildDefaults with Verbosity = Some MSBuildVerbosity.Minimal }
 let assemblyVersion = EnvironmentHelper.environVarOrDefault "GitVersion_AssemblySemVer" "0.1.0.0"
@@ -43,6 +49,8 @@ Target "Build" (fun _ ->
     |> ignore
 )
 
+#if MONO
+#else
 Target "UpdateAppConfig" (fun _ ->
     PowerShell
         .Create()
@@ -50,6 +58,7 @@ Target "UpdateAppConfig" (fun _ ->
         .Invoke()
         |> Seq.iter (printfn "%O")
 )
+#endif
 
 Target "GitLink" (fun _ ->
     let gitLink = (packagesDir @@ @"gitlink" @@ "lib" @@ "net45" @@ "GitLink.exe")
@@ -115,7 +124,10 @@ Target "Publish" (fun _ ->
 "Clean" ==> "Rebuild" 
 "Build" ==> "Rebuild" 
 "Build" ?=> "UnitTests" ==> "Test"
+#if MONO
+#else
 "UpdateAppConfig" ==> "ContractTests"
+#endif
 "Build" ?=> "ContractTests" ==> "Test"
 "Rebuild" ==> "Test"
 "GitLink" ==> "Package"

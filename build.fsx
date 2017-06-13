@@ -82,8 +82,9 @@ let runTestNUnit pattern =
         !! (buildDir @@  pattern)
         |> NUnit3 (fun p ->
             { p with
-                ToolPath = findToolInSubPath "nunit3-console.exe" ""
-                WorkingDir = testDir })
+                ToolPath = findToolInSubPath "nunit3-console.exe" @"C:\Tools\NUnit3"
+                WorkingDir = testDir
+                ResultSpecs = ["myresults.xml;format=AppVeyor"] })
 
 Target "Test" DoNothing
 Target "UnitTests" (runTestXUnit "*.UnitTests*.dll" >> runTestNUnit "*.UnitTests*.dll")

@@ -192,7 +192,7 @@ GIST
 GROUP Build
 NUGET
   remote: http://www.nuget.org/api/v2
-    FAKE (4.61)
+    FAKE (4.61.3)
     FSharpLint (0.2.8)
     gitlink (2.4.1)
     GitVersion.CommandLine (4.0.0-beta0011)

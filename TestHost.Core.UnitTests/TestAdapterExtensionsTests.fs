@@ -1,11 +1,9 @@
 ﻿module R4nd0mApps.TddStud10.TestHost.TestAdapterExtensionsTests
 
 open R4nd0mApps.TddStud10.Common.Domain
-open R4nd0mApps.TddStud10.TestExecution
-open global.Xunit
-open FsUnit.Xunit
-open R4nd0mApps.TddStud10.TestHost.TestAdapterExtensions
 open R4nd0mApps.XTestPlatform.Api
+open NUnit.Framework
+open FsUnit
 
 let adapterSearchPath = Path.getLocalPath() |> FilePath
 
@@ -26,7 +24,7 @@ let expectedTests =
 
 let rebasePaths = (FilePath @"D:\XXX\UnitTestProjects\0\XUnit20FSPortable.fsproj", FilePath @"D:\src\t\testprojects\testexecution\testdata\unittestprojects\XUnit20FSPortable\XUnit20FSPortable.fsproj")
 
-[<Fact>]
+[<Test>]
 let ``discoverTests can ignore and discover theory and facts from test assembly``() = 
     let filteredTestName = "XUnit20FSPortable.UnitTests.Theory Tests"
    
@@ -46,7 +44,7 @@ let ``discoverTests can ignore and discover theory and facts from test assembly`
         |> Seq.toList
     actual |> should equal expected
 
-[<Fact>]
+[<Test>]
 let ``executeTest can execute tests``() = 
     let actual = 
         testBin

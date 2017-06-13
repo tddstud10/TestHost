@@ -69,17 +69,25 @@ Target "GitLink" (fun _ ->
     if not ret.OK || not (Seq.isEmpty loadFailures) then failwith (sprintf "GitLink.exe \"%s\" task failed.\nErrors:\m %A" args loadFailures)
 )
 
-let runTest pattern =
+let runTestXUnit pattern =
     fun _ ->
         !! (buildDir @@  pattern)
         |> xUnit (fun p ->
             { p with
-                ToolPath = findToolInSubPath "xunit.console.exe" (currentDirectory @@ "tools" @@ "xUnit")
+                ToolPath = findToolInSubPath "xunit.console.exe" ""
                 WorkingDir = Some testDir })
 
+let runTestNUnit pattern =
+    fun _ ->
+        !! (buildDir @@  pattern)
+        |> NUnit3 (fun p ->
+            { p with
+                ToolPath = findToolInSubPath "nunit3-console.exe" ""
+                WorkingDir = testDir })
+
 Target "Test" DoNothing
-Target "UnitTests" (runTest "*.UnitTests*.dll")
-Target "ContractTests" (runTest "*.ContractTests*.dll") 
+Target "UnitTests" (runTestXUnit "*.UnitTests*.dll" >> runTestNUnit "*.UnitTests*.dll")
+Target "ContractTests" (runTestXUnit "*.ContractTests*.dll") 
 
 Target "Package" (fun _ ->
     "TestHost.nuspec"

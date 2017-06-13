@@ -1,41 +1,24 @@
 ﻿namespace R4nd0mApps.TddStud10.TestHost
 
 open R4nd0mApps.TddStud10.Common.Domain
-open System
-open System.Text.RegularExpressions
 
 module TestFailureInfoExtensions = 
     open R4nd0mApps.XTestPlatform.Api
     
-    let private stackFrameCracker = 
-        Regex("""^at (?<atMethod>(.*)) in (?<document>(.*))\:line (?<line>(\d+))$""", RegexOptions.Compiled)
-    
     let create (tr : XTestResult) : seq<DocumentLocation * TestFailureInfo> = 
-        let parseSF input = 
-            let m = input |> stackFrameCracker.Match
-            if m.Success then 
-                (m.Groups.["atMethod"].Value, 
-                 { document = m.Groups.["document"].Value |> FilePath
-                   line = 
-                       m.Groups.["line"].Value
-                       |> Int32.Parse
-                       |> DocumentCoordinate })
-                |> ParsedFrame
-            else input |> UnparsedFrame
-        if tr.Outcome <> Failed || isNull tr.ErrorStackTrace then Seq.empty
-        else 
-            let stack = 
-                tr.ErrorStackTrace.Split([| "\r\n"; "\r"; "\n" |], StringSplitOptions.RemoveEmptyEntries)
-                |> Seq.map (fun s -> s.Trim() |> parseSF)
-                |> Seq.toArray
-            
+        let innerFn fi = 
             let tfi = 
                 { message = 
-                      if tr.ErrorMessage = null then ""
-                      else tr.ErrorMessage
-                  stack = stack }
-            
-            stack |> Seq.choose (fun sf -> 
-                         match sf with
-                         | ParsedFrame(_, dl) -> Some(dl, tfi)
-                         | _ -> Option.None)
+                      if fi.Message = null then ""
+                      else fi.Message
+                  stack = 
+                      fi.CallStack |> Array.map (function 
+                                          | XUnparsedFrame x -> UnparsedFrame x
+                                          | XParsedFrame(m, f, l) -> 
+                                              ParsedFrame(m, 
+                                                          { document = f |> FilePath
+                                                            line = l |> DocumentCoordinate })) }
+            tfi.stack |> Seq.choose (function 
+                             | ParsedFrame(_, dl) -> Some(dl, tfi)
+                             | _ -> Option.None)
+        tr.FailureInfo |> Option.fold (Prelude.ct innerFn) Seq.empty

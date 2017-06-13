@@ -1,7 +1,7 @@
 source https://www.nuget.org/api/v2
 
 nuget FSharp.Core 4.0.0.1 redirects: force
-nuget Mono.Cecil
+nuget Mono.Cecil prerelease
 
 gist parthopdas/ccd06b223c0ae88ed9164f34cc1f5f06 YaFunTK.fs
 
@@ -20,6 +20,10 @@ group Test
     nuget FsUnit.Xunit 1.4.1
     nuget xunit.runner.console
     nuget xunit.runner.visualstudio
+    nuget FsUnit
+    nuget NUnit
+    nuget NUnit.ConsoleRunner
+    nuget NUnit3TestAdapter 
 
 group TddStud10
     source "http://nuget.org/api/v2"

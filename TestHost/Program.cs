@@ -1,4 +1,5 @@
 ﻿using Microsoft.FSharp.Control;
+using Microsoft.FSharp.Core;
 using R4nd0mApps.TddStud10.Common;
 using R4nd0mApps.TddStud10.Common.Domain;
 using R4nd0mApps.TddStud10.Logger;
@@ -12,6 +13,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.ServiceModel;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace R4nd0mApps.TddStud10.TestHost
@@ -63,14 +65,14 @@ namespace R4nd0mApps.TddStud10.TestHost
             var searchPath = FilePath.NewFilePath(Path.Combine(Path.GetDirectoryName(slnSnapPath), "packages"));
             if (command == "discover")
             {
-                var tds = AdapterLoader.LoadDiscoverers.Invoke(searchPath.Item);
+                var tds = AdapterLoader.LoadDiscoverers(searchPath.Item);
                 DiscoverUnitTests(tds, slnPath, slnSnapPath, discoveredUnitTestsStore, discoveredUnitDTestsStore, buildRoot, new DateTime(long.Parse(timeFilter)), ignoredTests);
                 LogInfo("TestHost: Exiting Main.");
                 return 0;
             }
             else
             {
-                var tes = AdapterLoader.LoadExecutors.Invoke(searchPath.Item);
+                var tes = AdapterLoader.LoadExecutors(searchPath.Item);
                 var allTestsPassed = false;
                 if (_debuggerAttached)
                 {
@@ -279,11 +281,29 @@ namespace R4nd0mApps.TddStud10.TestHost
 
         private static DTestResult FromXTestResult(XTestResult tr)
         {
+            Func<XStackFrame, string> sf2Str = 
+                sf => 
+                {
+                    if (sf.IsXUnparsedFrame)
+                    {
+                        return (sf as XStackFrame.XUnparsedFrame).Item;
+                    }
+                    else if (sf.IsXParsedFrame)
+                    {
+                        var psf = (sf as XStackFrame.XParsedFrame);
+                        return $"    at {psf.Item1} in {psf.Item2}:line {psf.Item3}";
+                    }
+                    else
+                    {
+                        throw new ArgumentOutOfRangeException("sf");
+                    }
+                };
+            Func<XStackFrame[], string> cs2Str = cs => cs.Aggregate(new StringBuilder(), (acc, e) => acc.AppendLine(sf2Str(e))).ToString();
             return new DTestResult
             {
                 DisplayName = tr.DisplayName,
-                ErrorMessage = tr.ErrorMessage,
-                ErrorStackTrace = tr.ErrorStackTrace,
+                ErrorMessage = tr.FailureInfo == FSharpOption<XTestFailureInfo>.None ? "" : tr.FailureInfo.Value.Message,
+                ErrorStackTrace = tr.FailureInfo == FSharpOption<XTestFailureInfo>.None ? "" : cs2Str(tr.FailureInfo.Value.CallStack),
                 Outcome = FromXTestOutcome(tr.Outcome),
                 TestCase = FromXTestCase(tr.TestCase)
             };
@@ -292,7 +312,7 @@ namespace R4nd0mApps.TddStud10.TestHost
         private static readonly Dictionary<XTestOutcome, DTestOutcome>  outcomeMap = new Dictionary<XTestOutcome, DTestOutcome>
         {
             { XTestOutcome.Failed, DTestOutcome.TOFailed },
-            { XTestOutcome.None, DTestOutcome.TONone },
+            { XTestOutcome.NoOutcome, DTestOutcome.TONone },
             { XTestOutcome.NotFound, DTestOutcome.TONotFound },
             { XTestOutcome.Passed, DTestOutcome.TOPassed },
             { XTestOutcome.Skipped, DTestOutcome.TOSkipped },

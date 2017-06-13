@@ -13,19 +13,13 @@ type XUnitTestDiscoverer() =
         |> Array.exists testCase.FullyQualifiedName.StartsWith
         |> not
     
-    let createDiscSink cb = 
-        { new IXTestCaseDiscoverySink with
-              member __.SendTestCase(discoveredTest : XTestCase) : unit = discoveredTest |> cb }
-    
-    let createMessageLogger() = 
-        { new IXMessageLogger with
-              member it.SendMessage(_ : XTestMessageLevel, _ : string) : unit = () }
-    
     member public __.TestDiscovered = filteredTest.Publish
     member public __.DiscoverTests(tds : IXTestDiscoverer seq, FilePath asm, ignoredTests : string []) = 
         testDiscovered.Publish
         |> Event.filter (fun testCase -> isValidTest ignoredTests testCase)
         |> Event.add (fun testCase -> filteredTest.Trigger(testCase))
         tds
-        |> Seq.map (fun td -> td.DiscoverTests([ asm ], createMessageLogger (), createDiscSink testDiscovered.Trigger))
+        |> Seq.map (fun td -> 
+                    use __ = td.TestDiscovered.Subscribe(testDiscovered.Trigger)
+                    td.DiscoverTests([ asm ]))
         |> Seq.fold (fun _ -> id) ()

@@ -8,7 +8,7 @@ module TestAdapterExtensions =
     open System.Collections.Concurrent
     
     let discoverTestsCB rebasePaths tdSearchPath ignoredTests cb assemblyPath = 
-        let tds = tdSearchPath.ToString() |> AdapterLoader.LoadDiscoverers
+        let tds = tdSearchPath.ToString() |> AdapterLoader.LoadDiscoverersFromPath [ "Xtensions/XUnit/R4nd0mApps.XTestPlatform.XUnit.dll" ]
         
         let discoveryCB (tc : XTestCase) = 
             let rebaseCFP cfp = 
@@ -27,7 +27,7 @@ module TestAdapterExtensions =
         dTests :> seq<_>
     
     let executeTest teSearchPath (tc : XTestCase) = 
-        let tes = teSearchPath.ToString() |> AdapterLoader.LoadExecutors
+        let tes = teSearchPath.ToString() |> AdapterLoader.LoadExecutorsFromPath [ "Xtensions/XUnit/R4nd0mApps.XTestPlatform.XUnit.dll" ]
         let te = new XUnitTestExecutor()
         let trs = new ConcurrentQueue<_>()
         te.TestExecuted.Add(trs.Enqueue)

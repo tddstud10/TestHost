@@ -4,7 +4,8 @@ open R4nd0mApps.TddStud10.Common.Domain
 open R4nd0mApps.XTestPlatform.Api
 open System.Collections.Concurrent
 open System.IO
-open Xunit
+open NUnit.Framework
+open FsUnit
 
 let getLocalPath = Path.getLocalPath >> FilePath
 let expectedTests = 
@@ -25,27 +26,27 @@ let createDiscoverer() =
     td.TestDiscovered |> Observable.add tcs.Add
     td, tcs
 
-[<Fact>]
+[<Test>]
 let ``Can run successfully on assemblies with no tests``() = 
     let it, _ = createDiscoverer()
     it.DiscoverTests([], testBin, Array.empty<string>)
 
-[<Fact>]
+[<Test>]
 let ``Can discover theory and facts from test assembly``() = 
     let it, tcs = createDiscoverer()
-    let td = getLocalPath().ToString() |> AdapterLoader.LoadDiscoverers
+    let td = getLocalPath().ToString() |> AdapterLoader.LoadDiscoverersFromPath [ "Xtensions/XUnit/R4nd0mApps.XTestPlatform.XUnit.dll" ]
     it.DiscoverTests(td, testBin, Array.empty<string>)
     let actualTests = 
         tcs
         |> Seq.map (fun t -> t.DisplayName)
         |> Seq.sort
         |> Seq.toList
-    Assert.Equal<list<_>>(expectedTests, actualTests)
+    expectedTests |> should equal actualTests
 
-[<Fact>]
+[<Test>]
 let ``Can ignore discover theory and facts from test assembly``() = 
     let it, tcs = createDiscoverer()
-    let td = getLocalPath().ToString() |> AdapterLoader.LoadDiscoverers
+    let td = getLocalPath().ToString() |> AdapterLoader.LoadDiscoverersFromPath [ "Xtensions/XUnit/R4nd0mApps.XTestPlatform.XUnit.dll" ]
     let filteredTestName = "XUnit20FSPortable.UnitTests.Theory Tests"
     it.DiscoverTests(td, testBin, [| filteredTestName |])
     let filteredTests = expectedTests |> List.filter (fun f -> not (f.StartsWith(filteredTestName)))
@@ -55,4 +56,4 @@ let ``Can ignore discover theory and facts from test assembly``() =
         |> Seq.map (fun t -> t.DisplayName)
         |> Seq.sort
         |> Seq.toList
-    Assert.Equal<list<_>>(filteredTests, actualTests)
+    filteredTests |> should equal actualTests

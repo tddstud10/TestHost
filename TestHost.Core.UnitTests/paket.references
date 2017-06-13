@@ -6,6 +6,9 @@ group Test
     FsUnit.xUnit
     FsCheck.Xunit
     xunit.runner.visualstudio
+    FsUnit
+    NUnit
+    NUnit3TestAdapter 
 
 group TddStud10
     R4nd0mApps.XTestPlatform

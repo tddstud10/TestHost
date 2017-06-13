@@ -1,15 +1,12 @@
 ﻿module R4nd0mApps.TddStud10.TestExecution.Adapters.XUnitTestExecutorTests
 
-open R4nd0mApps.TddStud10.TestExecution
 open System.Collections.Concurrent
 open System.IO
-open System.Runtime.Serialization
-open System.Xml
 open Xunit
 open R4nd0mApps.TddStud10.Common.Domain
-open System.Resources
-open System.Reflection
 open R4nd0mApps.XTestPlatform.Api
+open NUnit.Framework
+open FsUnit
 
 let getLocalPath = Path.getLocalPath >> FilePath
 
@@ -37,18 +34,18 @@ let createExecutor() =
     te.TestExecuted |> Observable.add trs.Enqueue
     te, trs
 
-[<Fact>]
+[<Test>]
 let ``Can run successfully on assemblies with no tests``() = 
     let it, _ = createExecutor()
     it.ExecuteTests([ ], [||])
 
-[<Fact>]
+[<Test>]
 let ``Can run re-hydrated tests``() = 
     let it, tests = createDiscoverer()
-    let td = getLocalPath().ToString() |> AdapterLoader.LoadDiscoverers
+    let td = getLocalPath().ToString() |> AdapterLoader.LoadDiscoverersFromPath [ "Xtensions/XUnit/R4nd0mApps.XTestPlatform.XUnit.dll" ]
     it.DiscoverTests(td, testBin, Array.empty<string>)
     
-    let te = getLocalPath().ToString() |> AdapterLoader.LoadExecutors
+    let te = getLocalPath().ToString() |> AdapterLoader.LoadExecutorsFromPath [ "Xtensions/XUnit/R4nd0mApps.XTestPlatform.XUnit.dll" ]
     let it, tos = createExecutor()
     it.ExecuteTests(te, tests)
     let actualTests = 
@@ -56,4 +53,4 @@ let ``Can run re-hydrated tests``() =
         |> Seq.map (fun t -> t.DisplayName, t.Outcome)
         |> Seq.sortBy fst
         |> Seq.toList
-    Assert.Equal<list<_>>(expectedTests, actualTests)
+    expectedTests |> should equal actualTests

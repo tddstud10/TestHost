@@ -16,7 +16,7 @@ open System.Management.Automation
 
 MSBuildDefaults <- { MSBuildDefaults with Verbosity = Some MSBuildVerbosity.Minimal }
 setEnvironVar "MONO_ENV_OPTIONS" "--debug"
-let assemblyVersion = EnvironmentHelper.environVarOrDefault "GitVersion_AssemblySemVer" "65535.65535.65535.65535"
+let assemblyVersion = EnvironmentHelper.environVarOrDefault "GitVersion_AssemblySemVer" "0.1.0.0"
 
 // Directories
 let packagesDir = __SOURCE_DIRECTORY__ @@ "packages" @@ "Build"

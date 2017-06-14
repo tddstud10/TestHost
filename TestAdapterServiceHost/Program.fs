@@ -15,15 +15,11 @@ let main argv =
     |> Async.Start
 
     let covDataSvc = 
-        ()
-        |> CoverageDataCollector2Service
-        |> ServiceFactory.CreateService<_, ICoverageDataCollector2>
+        ServiceFactory.CreateService<_, ICoverageDataCollector2>(CoverageDataCollector2Service())
     Environment.SetEnvironmentVariable(Marker.CoverageDataCollectorAddressEnvVarName, covDataSvc.Address.ToString())
 
     let testSvc = 
-        covDataSvc.Service.GetCoverageData
-        |> TestAdapterService
-        |> ServiceFactory.CreateService<_, ITestAdapterService>
+        ServiceFactory.CreateService<_, ITestAdapterService>(TestAdapterService(covDataSvc.Service.GetCoverageData))
 
     ServiceDiscovery.shareUri uriShare testSvc.Address
 

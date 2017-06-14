@@ -24,7 +24,7 @@ let ``Adapter service can discover and run tests``() =
     let svcCB = TestAdapterServiceFactory.TestAdapterServiceCallback()
     svcCB.Callback <- testCases.Add
     let proc, svc = TestAdapterServiceFactory.create svcCB
-    use proc = proc
+    use __ = proc
     svc.DiscoverTests rebasePaths adapterSearchPath [||] assemblyPath
     let results = 
         testCases
@@ -42,7 +42,7 @@ let ``Adapter service can run tests and collect coverage data``() =
     let svcCB = TestAdapterServiceFactory.TestAdapterServiceCallback()
     svcCB.Callback <- testCases.Add
     let proc, svc = TestAdapterServiceFactory.create svcCB
-    use proc = proc
+    use __ = proc
     svc.DiscoverTests rebasePaths adapterSearchPath [||] assemblyPath
     let results = 
         testCases

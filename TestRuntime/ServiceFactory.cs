@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.ServiceModel;
+using System.ServiceModel.Channels;
 
 namespace R4nd0mApps.TddStud10.TestRuntime
 {
@@ -29,8 +30,10 @@ namespace R4nd0mApps.TddStud10.TestRuntime
             Trace.TraceInformation("{0}: Creating Coverage Data service.", typeof(TSvc).Name);
 
             var serviceHost = new ServiceHost(svcObj);
-            var binding = new NetTcpBinding();
-            var address = $"net.tcp://127.0.0.1:{GetFreePortOnLoopback()}/r4nd0mapps/tddstud10/{typeof(TSvc).Name}/{Process.GetCurrentProcess().Id}";
+            var binding = Marker.OnMono ? new NetTcpBinding() as Binding : new NetNamedPipeBinding(NetNamedPipeSecurityMode.None) as Binding;
+            var address = Marker.OnMono
+                ? $"net.tcp://127.0.0.1:{GetFreePortOnLoopback()}/r4nd0mapps/tddstud10/{typeof(TSvc).Name}/{Process.GetCurrentProcess().Id}"
+                : $"net.pipe://localhost/r4nd0mapps/tddstud10/{typeof(TSvc).Name}/{Process.GetCurrentProcess().Id}";
             var endPoint = serviceHost.AddServiceEndpoint(typeof(TISvc), binding, address);
             serviceHost.Open();
 

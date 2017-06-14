@@ -4,7 +4,9 @@ open R4nd0mApps.TddStud10.Common
 open System
 open System.Diagnostics
 open System.ServiceModel
+open System.ServiceModel.Channels
 open R4nd0mApps.XTestPlatform.Api
+open R4nd0mApps.TddStud10.TestRuntime
 
 type TestAdapterServiceCallback() as it = 
     member val Callback = ignore with get, set
@@ -27,11 +29,16 @@ let create (svcCV : ITestAdapterServiceCallback) =
     proc.StartInfo.WindowStyle <- ProcessWindowStyle.Hidden
     proc.StartInfo.Arguments <- sa
     proc.Start() |> ignore
+    let disp = 
+        { new IDisposable with
+            member x.Dispose() = () |> proc.Kill |> proc.Dispose }
     logger.logInfof "AdapterService Client: Started Server with PID: %d" proc.Id
     let uri = uriShare |> ServiceDiscovery.readSharedUri
     logger.logInfof "AdapterService Client: Server listening at: %O" uri
-    let binding = NetNamedPipeBinding(NetNamedPipeSecurityMode.None)
+    let binding = 
+        if Marker.OnMono then NetTcpBinding() :> Binding
+        else NetNamedPipeBinding(NetNamedPipeSecurityMode.None) :> _
     let epa = EndpointAddress(uri)
     let svc = DuplexChannelFactory<ITestAdapterService>.CreateChannel(svcCV, binding, epa)
     (svc :?> IContextChannel).OperationTimeout <- TimeSpan.FromHours(1.0)
-    proc, svc
+    disp, svc

@@ -57,6 +57,7 @@
     <Compile Include="Marker.cs" />
     <Compile Include="Properties\AssemblyProps.cs" />
     <Compile Include="TestRunTimeInstaller.cs" />
+    <Compile Include="ServiceFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />

@@ -2,7 +2,6 @@
 
 open FsUnit.Xunit
 open R4nd0mApps.TddStud10.Common.Domain
-open R4nd0mApps.TddStud10.TestExecution
 open System.Collections.Concurrent
 open System.IO
 open global.Xunit
@@ -16,8 +15,8 @@ let assemblyPath =
     |> FilePath
 
 let rebasePaths = 
-    FilePath @"D:\src\t\Engine\TestProjects\CSXUnit1xNUnit3x.NET20\Sln.sln", 
-    FilePath @"D:\delme\_tdd\CSXUnit1xNUnit3x.NET20\Sln.sln"
+    FilePath @"D:/src/t/Engine/TestProjects/CSXUnit1xNUnit3x.NET20/Sln.sln", 
+    FilePath @"D:/delme/_tdd/CSXUnit1xNUnit3x.NET20/Sln.sln"
 
 [<Fact>]
 let ``Adapter service can discover and run tests``() = 
@@ -25,15 +24,15 @@ let ``Adapter service can discover and run tests``() =
     let svcCB = TestAdapterServiceFactory.TestAdapterServiceCallback()
     svcCB.Callback <- testCases.Add
     let proc, svc = TestAdapterServiceFactory.create svcCB
+    use proc = proc
     svc.DiscoverTests rebasePaths adapterSearchPath [||] assemblyPath
     let results = 
         testCases
         |> Seq.map (fun tc -> 
-               let x = tc |> svc.ExecuteTest adapterSearchPath
+               let x = tc |> DataContract.serialize |> svc.ExecuteTest adapterSearchPath
                x.DisplayName, x.Outcome)
         |> Seq.sortBy fst
         |> Seq.toArray
-    proc.Kill()
     results |> should equal [| """CSXUnit1xNUnit3x.StringTests3.IndexOf(input: "hello world", letter: 'w', expected: 6)""", XTestOutcome.Passed
                                """CSXUnit1xNUnit3x.StringTests3.TestToSkip""", XTestOutcome.Passed |]
 
@@ -43,16 +42,16 @@ let ``Adapter service can run tests and collect coverage data``() =
     let svcCB = TestAdapterServiceFactory.TestAdapterServiceCallback()
     svcCB.Callback <- testCases.Add
     let proc, svc = TestAdapterServiceFactory.create svcCB
+    use proc = proc
     svc.DiscoverTests rebasePaths adapterSearchPath [||] assemblyPath
     let results = 
         testCases
-        |> Seq.map (svc.ExecuteTestsAndCollectCoverageData adapterSearchPath)
+        |> Seq.map (DataContract.serialize >> svc.ExecuteTestsAndCollectCoverageData adapterSearchPath)
         |> Seq.toArray
         |> Array.map (fun r -> 
                let x = r.Result
                (x.DisplayName, x.Outcome), r.CoverageData)
         |> Array.sortBy fst
-    proc.Kill()
     results
     |> Array.map fst
     |> should equal [| """CSXUnit1xNUnit3x.StringTests3.IndexOf(input: "hello world", letter: 'w', expected: 6)""", XTestOutcome.Passed

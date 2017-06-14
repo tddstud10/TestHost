@@ -4,6 +4,9 @@ open R4nd0mApps.TddStud10.Common.Domain
 open R4nd0mApps.XTestPlatform.Api
 open NUnit.Framework
 open FsUnit
+open System
+
+let IsMono = "Mono.Runtime" |> Type.GetType |> isNull |> not
 
 let adapterSearchPath = Path.getLocalPath() |> FilePath
 
@@ -22,7 +25,7 @@ let expectedTests =
       "XUnit20FSPortable.UnitTests.Theory Tests(input: 1)", XTestOutcome.Passed
       "XUnit20FSPortable.UnitTests.Theory Tests(input: 2)", XTestOutcome.Failed ]
 
-let rebasePaths = (FilePath @"D:\XXX\UnitTestProjects\0\XUnit20FSPortable.fsproj", FilePath @"D:\src\t\testprojects\testexecution\testdata\unittestprojects\XUnit20FSPortable\XUnit20FSPortable.fsproj")
+let rebasePaths = (FilePath @"D:/XXX/UnitTestProjects/0/XUnit20FSPortable.fsproj", FilePath @"D:/src/t/testprojects/testexecution/testdata/unittestprojects/XUnit20FSPortable/XUnit20FSPortable.fsproj")
 
 [<Test>]
 let ``discoverTests can ignore and discover theory and facts from test assembly``() = 
@@ -36,7 +39,8 @@ let ``discoverTests can ignore and discover theory and facts from test assembly`
         expectedTests
         |> List.map fst
         |> List.filter (String.startsWith filteredTestName >> not)
-        |> List.map (Prelude.tuple2 @"D:\XXX\UNITTESTPROJECTS\0\PORTABLELIBRARY1.FS")
+        // TODO: Make this work property on macOS
+        |> List.map (Prelude.tuple2 <| if IsMono then @"D:\SRC\T\TESTPROJECTS\TESTEXECUTION\TESTDATA\UNITTESTPROJECTS\XUNIT20FSPORTABLE\PORTABLELIBRARY1.FS" else @"D:\XXX\UNITTESTPROJECTS\0\PORTABLELIBRARY1.FS")
     let actual = 
         discTests
         |> Seq.map (fun t -> t.CodeFilePath, t.DisplayName)

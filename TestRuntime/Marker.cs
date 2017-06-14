@@ -1,13 +1,16 @@
-﻿using System;
+﻿﻿using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.Remoting.Messaging;
 using System.ServiceModel;
+using System.ServiceModel.Channels;
 
 namespace R4nd0mApps.TddStud10.TestRuntime
 {
     public abstract class Marker
     {
+        public static readonly bool OnMono = Type.GetType("Mono.Runtime") != null;
+            
         public const string CoverageDataCollectorAddressEnvVarName = "TDDSTUDIO_COVERAGEDATACOLLECTORADDRESS";
 
         private static LazyObject<Marker> instance = new LazyObject<Marker>(VersionedMarkerFactory);
@@ -170,7 +173,7 @@ namespace R4nd0mApps.TddStud10.TestRuntime
         private static ICoverageDataCollector2 CreateChannel(string address)
         {
             Trace.TraceInformation("Marker: Initiating connection to {0} ...", address);
-            NetNamedPipeBinding binding = new NetNamedPipeBinding(NetNamedPipeSecurityMode.None);
+            var binding = OnMono ? new NetTcpBinding() as Binding: new NetNamedPipeBinding(NetNamedPipeSecurityMode.None) as Binding;
             EndpointAddress epa = new EndpointAddress(address);
             var ret = ChannelFactory<ICoverageDataCollector2>.CreateChannel(binding, epa);
             Trace.TraceInformation("Marker: Connected to server.", address);

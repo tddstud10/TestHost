@@ -15,7 +15,8 @@ open System.Management.Automation
 #endif
 
 MSBuildDefaults <- { MSBuildDefaults with Verbosity = Some MSBuildVerbosity.Minimal }
-let assemblyVersion = EnvironmentHelper.environVarOrDefault "GitVersion_AssemblySemVer" "0.1.0.0"
+setEnvironVar "MONO_ENV_OPTIONS" "--debug"
+let assemblyVersion = EnvironmentHelper.environVarOrDefault "GitVersion_AssemblySemVer" "65535.65535.65535.65535"
 
 // Directories
 let packagesDir = __SOURCE_DIRECTORY__ @@ "packages" @@ "Build"
@@ -92,8 +93,7 @@ let runTestNUnit pattern =
         |> NUnit3 (fun p ->
             { p with
                 ToolPath = findToolInSubPath "nunit3-console.exe" @"C:\Tools\NUnit3"
-                WorkingDir = testDir
-                ResultSpecs = ["myresults.xml;format=AppVeyor"] })
+                WorkingDir = testDir })
 
 Target "Test" DoNothing
 Target "UnitTests" (runTestXUnit "*.UnitTests*.dll" >> runTestNUnit "*.UnitTests*.dll")

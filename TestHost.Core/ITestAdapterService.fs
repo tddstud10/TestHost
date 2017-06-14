@@ -17,8 +17,8 @@ type ITestAdapterService =
      -> tdSearchPath:FilePath -> ignoredTestsPattern:string [] -> assemblyPath:FilePath -> unit
     
     [<OperationContract>]
-    abstract ExecuteTest : teSearchPath:FilePath -> testCase:XTestCase -> XTestResult
+    abstract ExecuteTest : teSearchPath:FilePath -> testCase:string -> XTestResult
     
     [<OperationContract>]
     abstract ExecuteTestsAndCollectCoverageData : teSearchPath:FilePath
-     -> testCase:XTestCase -> DTestResultWithCoverageData
+     -> testCase:string -> DTestResultWithCoverageData

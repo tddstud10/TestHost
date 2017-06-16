@@ -118,6 +118,47 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Compile Include="..\paket-files\parthopdas\ccd06b223c0ae88ed9164f34cc1f5f06\YaFunTK.fs">
+      <Paket>True</Paket>
+      <Link>paket-files/YaFunTK.fs</Link>
+    </Compile>
+    <Compile Include="..\AssemblyInfo.fs">
+      <Link>AssemblyInfo.fs</Link>
+    </Compile>
+    <Content Include="paket.references" />
+    <Content Include="app.config" />
+    <Compile Include="TestRuntime\DependencyTests.fs" />
+    <Compile Include="CoverageDataCollectorTests.fs" />
+    <Compile Include="XUnitTestExecutorTests.fs" />
+    <Compile Include="XUnitTestDiscovererTests.fs" />
+    <Compile Include="TestFailureInfoExtensionsTests.fs" />
+    <Compile Include="TestAdapterExtensionsTests.fs" />
+    <None Include="..\packages\tddstud10\R4nd0mApps.XTestPlatform\lib\Xtensions\XUnit\R4nd0mApps.XTestPlatform.CecilUtils.dll">
+      <Link>Xtensions\XUnit\R4nd0mApps.XTestPlatform.CecilUtils.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\packages\tddstud10\R4nd0mApps.XTestPlatform\lib\Xtensions\XUnit\R4nd0mApps.XTestPlatform.CecilUtils.pdb">
+      <Link>Xtensions\XUnit\R4nd0mApps.XTestPlatform.CecilUtils.pdb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\packages\tddstud10\R4nd0mApps.XTestPlatform\lib\Xtensions\XUnit\R4nd0mApps.XTestPlatform.XUnit.dll">
+      <Link>Xtensions\XUnit\R4nd0mApps.XTestPlatform.XUnit.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\packages\tddstud10\R4nd0mApps.XTestPlatform\lib\Xtensions\XUnit\R4nd0mApps.XTestPlatform.XUnit.pdb">
+      <Link>Xtensions\XUnit\R4nd0mApps.XTestPlatform.XUnit.pdb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\packages\tddstud10\R4nd0mApps.XTestPlatform\lib\Xtensions\XUnit\xunit.abstractions.dll">
+      <Link>Xtensions\XUnit\xunit.abstractions.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\packages\tddstud10\R4nd0mApps.XTestPlatform\lib\Xtensions\XUnit\xunit.runner.utility.net35.dll">
+      <Link>Xtensions\XUnit\xunit.runner.utility.net35.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v2.0' Or $(TargetFrameworkVersion) == 'v3.0' Or $(TargetFrameworkVersion) == 'v3.5')">
       <ItemGroup>
@@ -534,47 +575,6 @@
       <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\paket-files\parthopdas\ccd06b223c0ae88ed9164f34cc1f5f06\YaFunTK.fs">
-      <Paket>True</Paket>
-      <Link>paket-files/YaFunTK.fs</Link>
-    </Compile>
-    <Compile Include="..\AssemblyInfo.fs">
-      <Link>AssemblyInfo.fs</Link>
-    </Compile>
-    <Content Include="paket.references" />
-    <Content Include="app.config" />
-    <Compile Include="TestRuntime\DependencyTests.fs" />
-    <Compile Include="CoverageDataCollectorTests.fs" />
-    <Compile Include="XUnitTestExecutorTests.fs" />
-    <Compile Include="XUnitTestDiscovererTests.fs" />
-    <Compile Include="TestFailureInfoExtensionsTests.fs" />
-    <Compile Include="TestAdapterExtensionsTests.fs" />
-    <None Include="..\packages\tddstud10\R4nd0mApps.XTestPlatform\lib\Xtensions\XUnit\R4nd0mApps.XTestPlatform.CecilUtils.dll">
-      <Link>Xtensions\XUnit\R4nd0mApps.XTestPlatform.CecilUtils.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\packages\tddstud10\R4nd0mApps.XTestPlatform\lib\Xtensions\XUnit\R4nd0mApps.XTestPlatform.CecilUtils.pdb">
-      <Link>Xtensions\XUnit\R4nd0mApps.XTestPlatform.CecilUtils.pdb</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\packages\tddstud10\R4nd0mApps.XTestPlatform\lib\Xtensions\XUnit\R4nd0mApps.XTestPlatform.XUnit.dll">
-      <Link>Xtensions\XUnit\R4nd0mApps.XTestPlatform.XUnit.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\packages\tddstud10\R4nd0mApps.XTestPlatform\lib\Xtensions\XUnit\R4nd0mApps.XTestPlatform.XUnit.pdb">
-      <Link>Xtensions\XUnit\R4nd0mApps.XTestPlatform.XUnit.pdb</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\packages\tddstud10\R4nd0mApps.XTestPlatform\lib\Xtensions\XUnit\xunit.abstractions.dll">
-      <Link>Xtensions\XUnit\xunit.abstractions.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\packages\tddstud10\R4nd0mApps.XTestPlatform\lib\Xtensions\XUnit\xunit.runner.utility.net35.dll">
-      <Link>Xtensions\XUnit\xunit.runner.utility.net35.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3' Or $(TargetFrameworkVersion) == 'v4.7')">

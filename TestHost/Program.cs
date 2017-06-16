@@ -48,6 +48,14 @@ namespace R4nd0mApps.TddStud10.TestHost
 
         private static int MainImpl(string[] args)
         {
+            if (File.Exists(@"c:\debug.testhost.txt"))
+            {
+                while (true)
+                {
+                    System.Threading.Thread.Sleep(2000);
+                }
+            }
+
             LogInfo("TestHost: Entering Main.");
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomainUnhandledException);
             var command = args[0];
@@ -143,9 +151,12 @@ namespace R4nd0mApps.TddStud10.TestHost
                         new FSharpHandler<XTestCase>(
                             (o, ea) =>
                             {
-                                var cfp = PathBuilder.rebaseCodeFilePath(FilePath.NewFilePath(slnPath), FilePath.NewFilePath(slnSnapPath), FilePath.NewFilePath(ea.CodeFilePath));
-                                ea.CodeFilePath = cfp.Item;
-                                var dl = new DocumentLocation { document = cfp, line = DocumentCoordinate.NewDocumentCoordinate(ea.LineNumber) };
+                                if (ea.CodeFilePath != null)
+                                {
+                                    var cfp = PathBuilder.rebaseCodeFilePath(FilePath.NewFilePath(slnPath), FilePath.NewFilePath(slnSnapPath), FilePath.NewFilePath(ea.CodeFilePath));
+                                    ea.CodeFilePath = cfp.Item;
+                                }
+                                var dl = new DocumentLocation { document = FilePath.NewFilePath(ea.CodeFilePath), line = DocumentCoordinate.NewDocumentCoordinate(ea.LineNumber) };
                                 var tests = testsPerAssembly.GetOrAdd(dl, _ => new ConcurrentBag<XTestCase>());
                                 tests.Add(ea);
                                 var dtests = dtestsPerAssembly.GetOrAdd(dl, _ => new ConcurrentBag<DTestCase>());
@@ -302,8 +313,8 @@ namespace R4nd0mApps.TddStud10.TestHost
             return new DTestResult
             {
                 DisplayName = tr.DisplayName,
-                ErrorMessage = tr.FailureInfo == FSharpOption<XTestFailureInfo>.None ? "" : tr.FailureInfo.Value.Message,
-                ErrorStackTrace = tr.FailureInfo == FSharpOption<XTestFailureInfo>.None ? "" : cs2Str(tr.FailureInfo.Value.CallStack),
+                ErrorMessage = tr.FailureInfo == FSharpOption<XTestFailureInfo>.None ? null : tr.FailureInfo.Value.Message,
+                ErrorStackTrace = tr.FailureInfo == FSharpOption<XTestFailureInfo>.None ? null : cs2Str(tr.FailureInfo.Value.CallStack),
                 Outcome = FromXTestOutcome(tr.Outcome),
                 TestCase = FromXTestCase(tr.TestCase)
             };

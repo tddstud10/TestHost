@@ -230,7 +230,12 @@ namespace R4nd0mApps.TddStud10.TestHost
                         new FSharpHandler<XTestResult>(
                             (o, ea) =>
                             {
-                                NoteTestResults(testResults, ea, slnPath, slnSnapPath);
+                                if (ea.TestCase.CodeFilePath != null)
+                                {
+                                    ea.TestCase.CodeFilePath = PathBuilder.rebaseCodeFilePath(FilePath.NewFilePath(slnPath), FilePath.NewFilePath(slnSnapPath), FilePath.NewFilePath(ea.TestCase.CodeFilePath)).ToString();
+                                }
+
+                                NoteTestResults(testResults, ea);
                                 NoteTestFailureInfo(testFailureInfo, ea);
                             }));
                     exec.ExecuteTests(tes, test);
@@ -276,15 +281,9 @@ namespace R4nd0mApps.TddStud10.TestHost
                 });
         }
 
-        private static void NoteTestResults(PerTestIdDResults testResults, XTestResult tr, string slnPath, string slnSnapPath)
+        private static void NoteTestResults(PerTestIdDResults testResults, XTestResult tr)
         {
             LogInfo("Noting Test Result: {0} - {1}", tr.DisplayName, tr.Outcome);
-
-            if (tr.TestCase.CodeFilePath != null)
-            {
-                var cfp = PathBuilder.rebaseCodeFilePath(FilePath.NewFilePath(slnPath), FilePath.NewFilePath(slnSnapPath), FilePath.NewFilePath(tr.TestCase.CodeFilePath));
-                tr.TestCase.CodeFilePath = cfp.Item;
-            }
 
             var testId = new TestId(
                 FilePath.NewFilePath(tr.TestCase.Source),
@@ -293,23 +292,11 @@ namespace R4nd0mApps.TddStud10.TestHost
                     DocumentCoordinate.NewDocumentCoordinate(tr.TestCase.LineNumber)));
 
             var results = testResults.GetOrAdd(testId, _ => new ConcurrentBag<DTestResult>());
-            results.Add(FromXTestResult(tr, slnPath, slnSnapPath));
+            results.Add(FromXTestResult(tr));
         }
 
-        private static DTestResult FromXTestResult(XTestResult tr, string slnPath, string slnSnapPath)
+        private static DTestResult FromXTestResult(XTestResult tr)
         {
-            Func<string, string> rebaseCFP =
-                cfp =>
-                {
-                    if (cfp == null)
-                    {
-                        return cfp;
-                    }
-
-                    return PathBuilder.rebaseCodeFilePath(FilePath.NewFilePath(slnPath), FilePath.NewFilePath(slnSnapPath), FilePath.NewFilePath(cfp)).ToString();
-                };
-
-
             Func<XStackFrame, string> sf2Str = 
                 sf => 
                 {
@@ -320,7 +307,7 @@ namespace R4nd0mApps.TddStud10.TestHost
                     else if (sf.IsXParsedFrame)
                     {
                         var psf = (sf as XStackFrame.XParsedFrame);
-                        return $"   at {psf.Item1} in {rebaseCFP(psf.Item2)}:line {psf.Item3}";
+                        return $"   at {psf.Item1} in {psf.Item2}:line {psf.Item3}";
                     }
                     else
                     {

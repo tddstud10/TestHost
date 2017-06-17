@@ -230,12 +230,20 @@ namespace R4nd0mApps.TddStud10.TestHost
                         new FSharpHandler<XTestResult>(
                             (o, ea) =>
                             {
-                                if (ea.TestCase.CodeFilePath != null)
-                                {
-                                    ea.TestCase.CodeFilePath = PathBuilder.rebaseCodeFilePath(FilePath.NewFilePath(slnPath), FilePath.NewFilePath(slnSnapPath), FilePath.NewFilePath(ea.TestCase.CodeFilePath)).ToString();
-                                }
+                                Func<string, string> rebaseCFP =
+                                    cfp =>
+                                    {
+                                        if (cfp == null)
+                                        {
+                                            return null;
+                                        }
 
-                                NoteTestResults(testResults, ea);
+                                        return PathBuilder.rebaseCodeFilePath(FilePath.NewFilePath(slnPath), FilePath.NewFilePath(slnSnapPath), FilePath.NewFilePath(cfp)).ToString();
+                                    };
+
+                                ea.TestCase.CodeFilePath = rebaseCFP(ea.TestCase.CodeFilePath);
+
+                                NoteTestResults(testResults, ea, rebaseCFP);
                                 NoteTestFailureInfo(testFailureInfo, ea);
                             }));
                     exec.ExecuteTests(tes, test);
@@ -281,7 +289,7 @@ namespace R4nd0mApps.TddStud10.TestHost
                 });
         }
 
-        private static void NoteTestResults(PerTestIdDResults testResults, XTestResult tr)
+        private static void NoteTestResults(PerTestIdDResults testResults, XTestResult tr, Func<string, string> rebaseCFP)
         {
             LogInfo("Noting Test Result: {0} - {1}", tr.DisplayName, tr.Outcome);
 
@@ -292,10 +300,10 @@ namespace R4nd0mApps.TddStud10.TestHost
                     DocumentCoordinate.NewDocumentCoordinate(tr.TestCase.LineNumber)));
 
             var results = testResults.GetOrAdd(testId, _ => new ConcurrentBag<DTestResult>());
-            results.Add(FromXTestResult(tr));
+            results.Add(FromXTestResult(tr, rebaseCFP));
         }
 
-        private static DTestResult FromXTestResult(XTestResult tr)
+        private static DTestResult FromXTestResult(XTestResult tr, Func<string, string> rebaseCFP)
         {
             Func<XStackFrame, string> sf2Str = 
                 sf => 
@@ -307,14 +315,14 @@ namespace R4nd0mApps.TddStud10.TestHost
                     else if (sf.IsXParsedFrame)
                     {
                         var psf = (sf as XStackFrame.XParsedFrame);
-                        return $"   at {psf.Item1} in {psf.Item2}:line {psf.Item3}";
+                        return $"   at {psf.Item1} in {rebaseCFP(psf.Item2)}:line {psf.Item3}";
                     }
                     else
                     {
                         throw new ArgumentOutOfRangeException("sf");
                     }
                 };
-            Func<XStackFrame[], string> cs2Str = cs => cs.Aggregate(new StringBuilder(), (acc, e) => acc.AppendLine(sf2Str(e))).ToString().TrimEnd();
+            Func<XStackFrame[], string> cs2Str = cs => cs?.Aggregate(new StringBuilder(), (acc, e) => acc.AppendLine(sf2Str(e))).ToString().TrimEnd();
             return new DTestResult
             {
                 DisplayName = tr.DisplayName,

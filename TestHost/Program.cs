@@ -293,11 +293,23 @@ namespace R4nd0mApps.TddStud10.TestHost
                     DocumentCoordinate.NewDocumentCoordinate(tr.TestCase.LineNumber)));
 
             var results = testResults.GetOrAdd(testId, _ => new ConcurrentBag<DTestResult>());
-            results.Add(FromXTestResult(tr));
+            results.Add(FromXTestResult(tr, slnPath, slnSnapPath));
         }
 
-        private static DTestResult FromXTestResult(XTestResult tr)
+        private static DTestResult FromXTestResult(XTestResult tr, string slnPath, string slnSnapPath)
         {
+            Func<string, string> rebaseCFP =
+                cfp =>
+                {
+                    if (cfp == null)
+                    {
+                        return cfp;
+                    }
+
+                    return PathBuilder.rebaseCodeFilePath(FilePath.NewFilePath(slnPath), FilePath.NewFilePath(slnSnapPath), FilePath.NewFilePath(cfp)).ToString();
+                };
+
+
             Func<XStackFrame, string> sf2Str = 
                 sf => 
                 {
@@ -308,14 +320,14 @@ namespace R4nd0mApps.TddStud10.TestHost
                     else if (sf.IsXParsedFrame)
                     {
                         var psf = (sf as XStackFrame.XParsedFrame);
-                        return $"    at {psf.Item1} in {psf.Item2}:line {psf.Item3}";
+                        return $"   at {psf.Item1} in {rebaseCFP(psf.Item2)}:line {psf.Item3}";
                     }
                     else
                     {
                         throw new ArgumentOutOfRangeException("sf");
                     }
                 };
-            Func<XStackFrame[], string> cs2Str = cs => cs.Aggregate(new StringBuilder(), (acc, e) => acc.AppendLine(sf2Str(e))).ToString();
+            Func<XStackFrame[], string> cs2Str = cs => cs.Aggregate(new StringBuilder(), (acc, e) => acc.AppendLine(sf2Str(e))).ToString().TrimEnd();
             return new DTestResult
             {
                 DisplayName = tr.DisplayName,

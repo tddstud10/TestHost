@@ -84,11 +84,11 @@ namespace R4nd0mApps.TddStud10.TestHost
                 var allTestsPassed = false;
                 if (_debuggerAttached)
                 {
-                    allTestsPassed = RunTests(tes, buildRoot, testResultsStore, testFailureInfoStore, GetTestToDebug(discoveredUnitTestsStore, discoveredUnitDTestsStore));
+                    allTestsPassed = RunTests(tes, slnPath, slnSnapPath, buildRoot, testResultsStore, testFailureInfoStore, GetTestToDebug(discoveredUnitTestsStore, discoveredUnitDTestsStore));
                 }
                 else
                 {
-                    allTestsPassed = ExecuteTestWithCoverageDataCollection(() => RunTests(tes, buildRoot, testResultsStore, testFailureInfoStore, PerDocumentLocationXTestCases.Deserialize(FilePath.NewFilePath(discoveredUnitTestsStore))), codeCoverageStore);
+                    allTestsPassed = ExecuteTestWithCoverageDataCollection(() => RunTests(tes, slnPath, slnSnapPath, buildRoot, testResultsStore, testFailureInfoStore, PerDocumentLocationXTestCases.Deserialize(FilePath.NewFilePath(discoveredUnitTestsStore))), codeCoverageStore);
                 }
 
                 LogInfo("TestHost: Exiting Main.");
@@ -208,7 +208,7 @@ namespace R4nd0mApps.TddStud10.TestHost
             LogError("Exception thrown in InvokeEngine: {0}.", e.ExceptionObject);
         }
 
-        private static bool RunTests(IEnumerable<IXTestExecutor> tes, string buildRoot, string testResultsStore, string testFailureInfoStore, PerDocumentLocationXTestCases discoveredUnitTests)
+        private static bool RunTests(IEnumerable<IXTestExecutor> tes, string slnPath, string slnSnapPath, string buildRoot, string testResultsStore, string testFailureInfoStore, PerDocumentLocationXTestCases discoveredUnitTests)
         {
             Stopwatch stopWatch = new Stopwatch();
 
@@ -230,7 +230,7 @@ namespace R4nd0mApps.TddStud10.TestHost
                         new FSharpHandler<XTestResult>(
                             (o, ea) =>
                             {
-                                NoteTestResults(testResults, ea);
+                                NoteTestResults(testResults, ea, slnPath, slnSnapPath);
                                 NoteTestFailureInfo(testFailureInfo, ea);
                             }));
                     exec.ExecuteTests(tes, test);
@@ -276,9 +276,15 @@ namespace R4nd0mApps.TddStud10.TestHost
                 });
         }
 
-        private static void NoteTestResults(PerTestIdDResults testResults, XTestResult tr)
+        private static void NoteTestResults(PerTestIdDResults testResults, XTestResult tr, string slnPath, string slnSnapPath)
         {
             LogInfo("Noting Test Result: {0} - {1}", tr.DisplayName, tr.Outcome);
+
+            if (tr.TestCase.CodeFilePath != null)
+            {
+                var cfp = PathBuilder.rebaseCodeFilePath(FilePath.NewFilePath(slnPath), FilePath.NewFilePath(slnSnapPath), FilePath.NewFilePath(tr.TestCase.CodeFilePath));
+                tr.TestCase.CodeFilePath = cfp.Item;
+            }
 
             var testId = new TestId(
                 FilePath.NewFilePath(tr.TestCase.Source),

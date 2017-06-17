@@ -242,6 +242,7 @@ namespace R4nd0mApps.TddStud10.TestHost
                                     };
 
                                 ea.TestCase.CodeFilePath = rebaseCFP(ea.TestCase.CodeFilePath);
+                                RebaseCallStackDocumentReferences(rebaseCFP, ea);
 
                                 NoteTestResults(testResults, ea, rebaseCFP);
                                 NoteTestFailureInfo(testFailureInfo, ea);
@@ -303,7 +304,7 @@ namespace R4nd0mApps.TddStud10.TestHost
             results.Add(FromXTestResult(tr, rebaseCFP));
         }
 
-        private static string CallStackToStringWithRebase(Func<string, string> rebaseCFP, XStackFrame[] callStack)
+        private static string CallStackToString(XStackFrame[] callStack)
         {
             Func<XStackFrame, string> sf2Str =
                 sf =>
@@ -315,7 +316,7 @@ namespace R4nd0mApps.TddStud10.TestHost
                     else if (sf.IsXParsedFrame)
                     {
                         var psf = (sf as XStackFrame.XParsedFrame);
-                        return $"   at {psf.Item1} in {rebaseCFP(psf.Item2)}:line {psf.Item3}";
+                        return $"   at {psf.Item1} in {psf.Item2}:line {psf.Item3}";
                     }
                     else
                     {
@@ -326,13 +327,38 @@ namespace R4nd0mApps.TddStud10.TestHost
             return callStack?.Aggregate(new StringBuilder(), (acc, e) => acc.AppendLine(sf2Str(e))).ToString().TrimEnd();
         }
 
+        private static void RebaseCallStackDocumentReferences(Func<string, string> rebaseCFP, XTestResult tr)
+        {
+            if (tr.FailureInfo == FSharpOption<XTestFailureInfo>.None)
+            {
+                return;
+            }
+
+            Func<XStackFrame, XStackFrame> rebaseFI =
+                sf =>
+                {
+                    if (sf.IsXParsedFrame)
+                    {
+                        var psf = (sf as XStackFrame.XParsedFrame);
+                        return XStackFrame.NewXParsedFrame(psf.Item1, rebaseCFP(psf.Item2), psf.Item3);
+                    }
+                    else
+                    {
+                        return sf;
+                    }
+                };
+
+            tr.FailureInfo.Value.CallStack = tr.FailureInfo.Value.CallStack?.Select(rebaseFI).ToArray();
+            tr.FailureInfo = new FSharpOption<XTestFailureInfo>(tr.FailureInfo.Value);
+        }
+
         private static DTestResult FromXTestResult(XTestResult tr, Func<string, string> rebaseCFP)
         {
             return new DTestResult
             {
                 DisplayName = tr.DisplayName,
                 ErrorMessage = tr.FailureInfo == FSharpOption<XTestFailureInfo>.None ? null : tr.FailureInfo.Value.Message,
-                ErrorStackTrace = tr.FailureInfo == FSharpOption<XTestFailureInfo>.None ? null : CallStackToStringWithRebase(rebaseCFP, tr.FailureInfo.Value.CallStack),
+                ErrorStackTrace = tr.FailureInfo == FSharpOption<XTestFailureInfo>.None ? null : CallStackToString(tr.FailureInfo.Value.CallStack),
                 Outcome = FromXTestOutcome(tr.Outcome),
                 TestCase = FromXTestCase(tr.TestCase)
             };

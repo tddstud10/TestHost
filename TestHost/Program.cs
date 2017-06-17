@@ -303,10 +303,10 @@ namespace R4nd0mApps.TddStud10.TestHost
             results.Add(FromXTestResult(tr, rebaseCFP));
         }
 
-        private static DTestResult FromXTestResult(XTestResult tr, Func<string, string> rebaseCFP)
+        private static string CallStackToStringWithRebase(Func<string, string> rebaseCFP, XStackFrame[] callStack)
         {
-            Func<XStackFrame, string> sf2Str = 
-                sf => 
+            Func<XStackFrame, string> sf2Str =
+                sf =>
                 {
                     if (sf.IsXUnparsedFrame)
                     {
@@ -322,12 +322,17 @@ namespace R4nd0mApps.TddStud10.TestHost
                         throw new ArgumentOutOfRangeException("sf");
                     }
                 };
-            Func<XStackFrame[], string> cs2Str = cs => cs?.Aggregate(new StringBuilder(), (acc, e) => acc.AppendLine(sf2Str(e))).ToString().TrimEnd();
+
+            return callStack?.Aggregate(new StringBuilder(), (acc, e) => acc.AppendLine(sf2Str(e))).ToString().TrimEnd();
+        }
+
+        private static DTestResult FromXTestResult(XTestResult tr, Func<string, string> rebaseCFP)
+        {
             return new DTestResult
             {
                 DisplayName = tr.DisplayName,
                 ErrorMessage = tr.FailureInfo == FSharpOption<XTestFailureInfo>.None ? null : tr.FailureInfo.Value.Message,
-                ErrorStackTrace = tr.FailureInfo == FSharpOption<XTestFailureInfo>.None ? null : cs2Str(tr.FailureInfo.Value.CallStack),
+                ErrorStackTrace = tr.FailureInfo == FSharpOption<XTestFailureInfo>.None ? null : CallStackToStringWithRebase(rebaseCFP, tr.FailureInfo.Value.CallStack),
                 Outcome = FromXTestOutcome(tr.Outcome),
                 TestCase = FromXTestCase(tr.TestCase)
             };

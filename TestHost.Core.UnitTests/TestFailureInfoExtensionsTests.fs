@@ -42,16 +42,16 @@ let ``If Failure and ErrorStackTrace is null or empty, return empty seq``() =
 [<Fact>]
 let ``If failure and ErrorStackTrace has 1 frame that cannot be parsed, return empty seq``() = 
     let tr = { createFailedTR() with
-                FailureInfo = { Message = "Test exception"
-                                CallStack = XCallStackParser.parse "Anything that cannot be parsed as a stack frame" } |> Some }
+                FailureInfo = { Message = "Test exception" |> XErrorMessage
+                                CallStack = XTestErrorInfoParser.parseStackTrace "Anything that cannot be parsed as a stack frame" } |> Some }
     let it = tr |> TestFailureInfoExtensions.create
     Assert.Empty(it)
 
 [<Fact>]
 let ``If failure and ErrorStackTrace has 1 frame that can be parsed, return that one with paths rebased``() = 
     let tr = { createFailedTR() with
-                FailureInfo = { Message = "Test exception"
-                                CallStack = XCallStackParser.parse @"at NS.C.M() in d:\s\p\f.cs:line 15" } |> Some }
+                FailureInfo = { Message = "Test exception" |> XErrorMessage
+                                CallStack = XTestErrorInfoParser.parseStackTrace @"at NS.C.M() in d:\s\p\f.cs:line 15" } |> Some }
     let it = tr |> TestFailureInfoExtensions.create
     
     let dl = 
@@ -67,8 +67,8 @@ let ``If failure and ErrorStackTrace has 1 frame that can be parsed, return that
 [<Fact>]
 let ``If failure and ErrorStackTrace has 2 frames, return that parseable one with paths rebased``() = 
     let tr = { createFailedTR() with 
-                FailureInfo = { Message = null
-                                CallStack = XCallStackParser.parse """    at NS.C.M(T p) in d:\s1\p2\f3.cs:line 1000
+                FailureInfo = { Message = "" |> XErrorMessage
+                                CallStack = XTestErrorInfoParser.parseStackTrace """    at NS.C.M(T p) in d:\s1\p2\f3.cs:line 1000
     at XNS.XC.XM()
     at YNS.YC.YM(YT yp, XT xp) in d:\s5\p6\f7.cpp:line 5000""" } |> Some }
     let it = tr |> TestFailureInfoExtensions.create

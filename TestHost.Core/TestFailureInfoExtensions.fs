@@ -9,12 +9,13 @@ module TestFailureInfoExtensions =
         let innerFn fi = 
             let tfi = 
                 { message = 
-                      if fi.Message = null then ""
-                      else fi.Message
+                      let (XErrorMessage m) = fi.Message
+                      m
                   stack = 
-                      fi.CallStack |> Array.map (function 
-                                          | XUnparsedFrame x -> UnparsedFrame x
-                                          | XParsedFrame(m, f, l) -> 
+                      let (XErrorStackTrace cs) = fi.CallStack
+                      cs |> Array.map (function 
+                                          | XErrorUnparsedFrame x -> UnparsedFrame x
+                                          | XErrorParsedFrame(m, f, l) -> 
                                               ParsedFrame(m, 
                                                           { document = f |> FilePath
                                                             line = l |> DocumentCoordinate })) }

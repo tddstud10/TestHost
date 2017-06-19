@@ -304,18 +304,18 @@ namespace R4nd0mApps.TddStud10.TestHost
             results.Add(FromXTestResult(tr, rebaseCFP));
         }
 
-        private static string CallStackToString(XStackFrame[] callStack)
+        private static string CallStackToString(XErrorStackFrame[] callStack)
         {
-            Func<XStackFrame, string> sf2Str =
+            Func<XErrorStackFrame, string> sf2Str =
                 sf =>
                 {
-                    if (sf.IsXUnparsedFrame)
+                    if (sf.IsXErrorUnparsedFrame)
                     {
-                        return (sf as XStackFrame.XUnparsedFrame).Item;
+                        return (sf as XErrorStackFrame.XErrorUnparsedFrame).Item;
                     }
-                    else if (sf.IsXParsedFrame)
+                    else if (sf.IsXErrorParsedFrame)
                     {
-                        var psf = (sf as XStackFrame.XParsedFrame);
+                        var psf = (sf as XErrorStackFrame.XErrorParsedFrame);
                         return $"   at {psf.Item1} in {psf.Item2}:line {psf.Item3}";
                     }
                     else
@@ -334,13 +334,13 @@ namespace R4nd0mApps.TddStud10.TestHost
                 return;
             }
 
-            Func<XStackFrame, XStackFrame> rebaseFI =
+            Func<XErrorStackFrame, XErrorStackFrame> rebaseFI =
                 sf =>
                 {
-                    if (sf.IsXParsedFrame)
+                    if (sf.IsXErrorParsedFrame)
                     {
-                        var psf = (sf as XStackFrame.XParsedFrame);
-                        return XStackFrame.NewXParsedFrame(psf.Item1, rebaseCFP(psf.Item2), psf.Item3);
+                        var psf = (sf as XErrorStackFrame.XErrorParsedFrame);
+                        return XErrorStackFrame.NewXErrorParsedFrame(psf.Item1, rebaseCFP(psf.Item2), psf.Item3);
                     }
                     else
                     {
@@ -348,7 +348,7 @@ namespace R4nd0mApps.TddStud10.TestHost
                     }
                 };
 
-            tr.FailureInfo.Value.CallStack = tr.FailureInfo.Value.CallStack?.Select(rebaseFI).ToArray();
+            tr.FailureInfo.Value.CallStack = XErrorStackTrace.NewXErrorStackTrace(tr.FailureInfo.Value.CallStack?.Item.Select(rebaseFI).ToArray());
             tr.FailureInfo = new FSharpOption<XTestFailureInfo>(tr.FailureInfo.Value);
         }
 
@@ -357,8 +357,8 @@ namespace R4nd0mApps.TddStud10.TestHost
             return new DTestResult
             {
                 DisplayName = tr.DisplayName,
-                ErrorMessage = tr.FailureInfo == FSharpOption<XTestFailureInfo>.None ? null : tr.FailureInfo.Value.Message,
-                ErrorStackTrace = tr.FailureInfo == FSharpOption<XTestFailureInfo>.None ? null : CallStackToString(tr.FailureInfo.Value.CallStack),
+                ErrorMessage = tr.FailureInfo == FSharpOption<XTestFailureInfo>.None ? null : tr.FailureInfo.Value.Message.Item,
+                ErrorStackTrace = tr.FailureInfo == FSharpOption<XTestFailureInfo>.None ? null : CallStackToString(tr.FailureInfo.Value.CallStack.Item),
                 Outcome = FromXTestOutcome(tr.Outcome),
                 TestCase = FromXTestCase(tr.TestCase)
             };

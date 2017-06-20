@@ -388,7 +388,7 @@ NUGET
       Microsoft.NETCore.Targets (>= 1.1) - framework: dnxcore50, netstandard10, >= netstandard13
       System.Runtime (>= 4.3) - framework: dnxcore50, netstandard10, >= netstandard13
   remote: https://ci.appveyor.com/nuget/xtestplatform-ve52h0rqj3nc
-    R4nd0mApps.XTestPlatform (2.0.0-ci0015)
+    R4nd0mApps.XTestPlatform (2.0.0-ci0016)
       FSharp.Core (>= 4.0.0.1)
       Mono.Cecil (>= 0.10.0-beta6)
   remote: https://ci.appveyor.com/nuget/common-wqs82t184w0x

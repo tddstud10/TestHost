@@ -392,7 +392,7 @@ NUGET
       FSharp.Core (>= 4.0.0.1)
       Mono.Cecil (>= 0.10.0-beta6)
   remote: https://ci.appveyor.com/nuget/common-wqs82t184w0x
-    TddStud10.Common (1.2.3-ci0089)
+    TddStud10.Common (1.2.3-ci0090)
       FSharp.Core (>= 4.0.0.1)
 
 GROUP Test

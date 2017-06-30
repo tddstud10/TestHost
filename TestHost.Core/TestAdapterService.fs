@@ -1,6 +1,7 @@
 ﻿namespace R4nd0mApps.TddStud10.TestHost
 
 open System.ServiceModel
+open R4nd0mApps.TddStud10.Common
 open R4nd0mApps.TddStud10.Common.Domain
 open R4nd0mApps.XTestPlatform.Api
 

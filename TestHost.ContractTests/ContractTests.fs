@@ -1,6 +1,7 @@
 ﻿module R4nd0mApps.TddStud10.TestHost.ContractTests
 
 open FsUnit.Xunit
+open R4nd0mApps.TddStud10.Common
 open R4nd0mApps.TddStud10.Common.Domain
 open System.Collections.Concurrent
 open System.IO

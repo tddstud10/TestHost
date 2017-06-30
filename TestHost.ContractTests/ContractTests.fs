@@ -8,10 +8,10 @@ open System.IO
 open global.Xunit
 open R4nd0mApps.XTestPlatform.Api
 
-let adapterSearchPath = Path.getExecutingAssemblyPath() |> FilePath
+let adapterSearchPath = Path.getExecutingAssemblyLocation() |> FilePath
 
 let assemblyPath = 
-    (Path.getExecutingAssemblyPath(), @"TestData2/CSXUnit1xNUnit3x.dll")
+    (Path.getExecutingAssemblyLocation(), @"TestData2/CSXUnit1xNUnit3x.dll")
     |> Path.Combine
     |> FilePath
 

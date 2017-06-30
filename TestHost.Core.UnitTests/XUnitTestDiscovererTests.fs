@@ -7,7 +7,7 @@ open System.IO
 open NUnit.Framework
 open FsUnit
 
-let getLocalPath = Path.getExecutingAssemblyPath >> FilePath
+let getLocalPath = Path.getExecutingAssemblyLocation >> FilePath
 let expectedTests = 
     [ "XUnit20FSPortable.UnitTests.Fact Test 1"; 
       "XUnit20FSPortable.UnitTests.Fact Test 2"; 

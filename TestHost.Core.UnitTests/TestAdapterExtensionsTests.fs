@@ -8,7 +8,7 @@ open System
 
 let IsMono = "Mono.Runtime" |> Type.GetType |> isNull |> not
 
-let adapterSearchPath = Path.getLocalPath() |> FilePath
+let adapterSearchPath = Path.getExecutingAssemblyPath() |> FilePath
 
 let testDataRoot = 
     FilePath.combine [ adapterSearchPath

@@ -8,7 +8,7 @@ open R4nd0mApps.XTestPlatform.Api
 open NUnit.Framework
 open FsUnit
 
-let getLocalPath = Path.getLocalPath >> FilePath
+let getLocalPath = Path.getExecutingAssemblyPath >> FilePath
 
 let testBin = 
     ()

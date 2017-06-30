@@ -19,7 +19,7 @@ let create (svcCV : ITestAdapterServiceCallback) =
     let sa = sprintf "%d %s" (Process.GetCurrentProcess().Id) (ServiceDiscovery.toString uriShare)
     
     let svcExePath = 
-        [ Path.getLocalPath()
+        [ Path.getExecutingAssemblyPath()
           "R4nd0mApps.TddStud10.TestAdapterServiceHost.exe" ]
         |> Path.combine
         |> DFizer.dfizePath
